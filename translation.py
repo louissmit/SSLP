@@ -11,7 +11,7 @@ class Translation:
         self.table = {}
     
     def get(self, e, f):
-        return 1.0/self.fs if not e in self.table else table[e]
+        return 1.0/self.fs if not e in self.table else self.table[e][f]
     
     def update(self, e, f, val):
         self.table[e][f] = val
