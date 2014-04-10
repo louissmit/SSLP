@@ -68,8 +68,6 @@ def translate(pairs, n=20, stability=1):
 		for e in voce:
 			for f in vocf:
 				t[f][e] = count[f][e] / total[e]
-				if not t[f][e]:
-					del t[f][e]
 
 		log_pp = 0
 		for (fs, es) in pairs:
