@@ -1,5 +1,7 @@
 import numpy as np
+from decimal import Context, Decimal
 pairs = [(a.split(), b.split()) for (a,b) in [('the dog','de hond'),('the cat','de kat'),('a dog','een hond'),('a cat','een kat')]]
+
 
 def loadCorpus():
     source = list(open('aligned-data/europarl.nl-en.nl', 'r'))
