@@ -1,11 +1,12 @@
 import numpy as np
+from collections import Counter
 from decimal import Context, Decimal
-pairs = [(a.split(), b.split()) for (a,b) in [('the dog','de hond'),('the cat','de kat'),('a dog','een hond'),('a cat','een kat')]]
-
+# pairs = [(a.split(), b.split()) for (a,b) in [('the dog','de hond'),('the cat','de kat'),('a dog','een hond'),('a cat','een kat')]]
+from IBM import getViterbiAlignment
 
 def loadCorpus():
-    source = list(open('aligned-data/europarl.nl-en.nl', 'r'))
-    target = list(open('aligned-data/europarl.nl-en.en', 'r'))
+    source = list(open('corpus1000.nl', 'r'))
+    target = list(open('corpus1000.en', 'r'))
     return source, target
 
 source, target = loadCorpus()
@@ -85,4 +86,7 @@ def translate(pairs, stability=1):
     
 # Example uses:
 # round_dc(translate(pairs))
-# translate([a for a in corpus(100)], 10000)
+t = translate([a for a in corpus(100)], 10000)
+getViterbiAlignment(source, target, t)
+
+

@@ -33,13 +33,15 @@ def runEM(source, target, alpha):
 		for i in xrange(0, len(source)):
 			e_s = target[i]
 			f_s = source[i]
-			perpexity += np.log2(p(e_s, f_s))
+			# perpexity += np.log2(p(e_s, f_s))
 		perplexity *= -1
 		print perpexity
 
 def getViterbiAlignment(source, target, t):
 	"""
 	Gets viterbi alignment
+	@param source:
+	@param target:
 	@param t: Translation model
 	"""
 	alignments = []
