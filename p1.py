@@ -51,6 +51,7 @@ def translate(pairs, n=20, stability=1):
 	stable = False
 	i = 0
 	while i < n:
+		print i, n
 		for f in vocf:
 			count[f] = Counter()
 		total = Counter()
