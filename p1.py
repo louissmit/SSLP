@@ -5,8 +5,8 @@ from decimal import Context, Decimal
 from IBM import getViterbiAlignment
 
 def loadCorpus():
-    source = list(open('corpus1000.nl', 'r'))
-    target = list(open('corpus1000.en', 'r'))
+    source = list(open('corpus_1000.nl', 'r'))
+    target = list(open('corpus_1000.en', 'r'))
     return source, target
 
 source, target = loadCorpus()
