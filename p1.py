@@ -1,47 +1,86 @@
 import numpy as np
 pairs = [(a.split(), b.split()) for (a,b) in [('the dog','de hond'),('the cat','de kat'),('a dog','een hond'),('a cat','een kat')]]
 
-# doublecounter : f -> e -> val
-t = {}
-count = {}
+def loadCorpus():
+    source = list(open('aligned-data/europarl.nl-en.nl', 'r'))
+    target = list(open('aligned-data/europarl.nl-en.en', 'r'))
+    return source, target
 
-vocf = Counter([b for a,_ in pairs for b in a])
-voce = Counter([b for _,a in pairs for b in a])
+source, target = loadCorpus()
 
-epsilon = 2.0 # float!!!
+def corpus(n=None):
+    """ An iterator of pairs """ 
+    n = n or len(source)
+    for i in xrange(n):
+        yield source[i].split(),target[i].split()
 
-# initialize uniform
-for f in vocf:
-    t[f] = Counter()
-    for e in voce:
-        t[f][e] = 1.0/len(voce)
+def round_dc(dc, n=0):
+    """ Rounds a dictionary of Counters """
+    for k,v in dc.iteritems():
+        new = Counter()
+        for i,c in v.iteritems():
+            c = round(c, n)
+            if c:
+                new[i] = c
+        dc[k] = new
+    return dc
 
-perplexity = float('inf')
-while perplexity > 1:
+def translate(pairs, stability=1):
+    """ Builds IBM1 translation table, doing EM until the perplexity difference is < `stability` """
+    # doublecounter : f -> e -> val
+    t = {}
+    count = {}
+
+    vocf = Counter([b for a,_ in pairs for b in a])
+    voce = Counter([b for _,a in pairs for b in a])
+
+    epsilon = 1.0 # float!!!
+#     epsilon = sum([len(x) for x,_ in pairs]) / float(len(pairs))
+    print 'epsilon:', epsilon
+
+    # initialize uniform
     for f in vocf:
-        count[f] = Counter()
-    total = Counter()
+        t[f] = Counter()
+        for e in voce:
+            t[f][e] = 1.0/len(voce)
 
-    for (fs, es) in pairs:
-        total_s = Counter()
-        for f in fs:
-            total_s[f] = sum(t[f].values())
-        for f in fs:
-            for e in es:
-                count[f][e] += t[f][e] / total_s[f]
-                total[e] += t[f][e] / total_s[f]
-
-    for e in voce:
+    perplexity = float('inf')
+    stable = False
+    while not stable:
         for f in vocf:
-            t[f][e] = count[f][e] / total[e]
+            count[f] = Counter()
+        total = Counter()
+
+        for (fs, es) in pairs:
+            total_s = Counter()
+            for f in fs:
+                total_s[f] = sum(t[f].values())
+            for f in fs:
+                for e in es:
+                    count[f][e] += t[f][e] / total_s[f]
+                    total[e] += t[f][e] / total_s[f]
+
+        for e in voce:
+            for f in vocf:
+                t[f][e] = count[f][e] / total[e]
+                if not t[f][e]:
+                    del t[f][e]
+        
+        log_pp = 0
+        for (fs, es) in pairs:
+            p = 0.0
+            for f in fs:
+                for e in es:
+                    p += t[f][e]
+            p *= (epsilon/(len(fs)**len(es)))
+            log_pp += np.log2(p)
+        old_perplexity = Decimal(perplexity)
+        perplexity = Context().power(2, Decimal(-log_pp))#2**(-perplexity)
+        stable = abs(old_perplexity - perplexity) < stability
+        print 'perplexity:', perplexity, ('stable' if stable else 'not stable')
+        
+    return t
     
-    perplexity = 0
-    for (fs, es) in pairs:
-        p = 0
-        for f in fs:
-            for e in es:
-                p += t[f][e]
-        p = (epsilon/(len(fs)**len(es))) * p
-        perplexity += np.log2(p)
-    perplexity *= -1
-    print 2**perplexity
+# Example uses:
+# round_dc(translate(pairs))
+# translate([a for a in corpus(100)], 10000)
