@@ -47,11 +47,12 @@ def getViterbiAlignment(source, target, t):
 	alignments = []
 	for i in xrange(len(source)):
 		e_s = target[i]
-		f_s = source[i]
+		f_s = source[i].strip().split(' ')
 		alignment = []
 		res = []
 		for i, f in enumerate(f_s):
-			viterbi = t[f].most_common(1)
+			viterbi = t[f].most_common(1)[0]
+			print viterbi
 			a_i = viterbi[1]
 			alignment.append([i, a_i])
 			word = viterbi[0]

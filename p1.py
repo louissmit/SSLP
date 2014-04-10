@@ -87,7 +87,7 @@ def translate(pairs, n=20, stability=1):
 
 # Example uses:
 # round_dc(translate(pairs))
-t = translate([a for a in corpus(100)])
+t = translate([a for a in corpus(100)], 1)
 getViterbiAlignment(source, target, t)
 
 
