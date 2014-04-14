@@ -38,7 +38,7 @@ def translate(pairs, n=20, stability=1):
 	voce = Counter([b for _,a in pairs for b in a])
 
 	epsilon = 1.0 # float!!!
-	#     epsilon = sum([len(x) for x,_ in pairs]) / float(len(pairs))
+	epsilon = sum([len(x) for x,_ in pairs]) / float(len(pairs))
 	print 'epsilon:', epsilon
 
 	# initialize uniform
@@ -74,12 +74,12 @@ def translate(pairs, n=20, stability=1):
 			for f in fs:
 				for e in es:
 					p += t[f][e]
-			p *= (epsilon/(len(fs)**len(es)))
+			p *= (epsilon/((len(es)+1)**len(fs)))
 			log_pp += np.log2(p)
 		old_perplexity = Decimal(perplexity)
 		# perplexity = Context().power(2, Decimal(-log_pp))#2**(-perplexity)
-		# stable = abs(old_perplexity - perplexity) < stability
-		print 'perplexity:', log_pp, ('stable' if stable else 'not stable')
+		stable = abs(old_perplexity - perplexity) < stability
+		print 'perplexity:', -log_pp, ('stable' if stable else 'not stable')
 		i += 1
 
 	return t
@@ -118,7 +118,6 @@ def evaluate(alignments, n=1000):
 		if j == n:
 			break
 		if i % 3 == 0:
-			print gold[i-2]
 			alignment = alignments[j]
 			res = evaluate_alignment(alignment, gold[i-1])
 			correct += res[0]
@@ -126,21 +125,25 @@ def evaluate(alignments, n=1000):
 			j+=1
 	print (correct / total)*100.0
 
-def evaluate_alignment(alignment, gold):
+def evaluate_alignment(alignment, giza_gold):
 	"""
 
 	@param alignment:
-	@param gold:
-	@return:
+	@param giza_gold:
+	@return: (correct alignments, total alignments)
 	"""
 	correct = 0.0
 	total = 0.0
-	matches = re.findall('\({[ 0-9]*}\)', gold)
+	matches = re.findall('\({[ 0-9]*}\)', giza_gold)
 	for a, match in enumerate(matches):
 		for gold_a in match[2:-2].strip().split():
 			if int(gold_a) in alignment[a]:
 				correct += 1.0
 			total += 1.0
+
+	if (correct / total) < 0.5:
+		print giza_gold
+		print alignment
 	return correct, total
 
 
