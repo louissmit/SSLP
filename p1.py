@@ -132,9 +132,9 @@ def evaluate(alignments, n=1000):
 
 # Example uses:
 # round_dc(translate(pairs))
-n = 100
+n = 1000
 C = [a for a in corpus(n)]
-t = translate(C, 1)
+t = translate(C, 20)
 alignments = getViterbiAlignment(C, t)
 evaluate(alignments, n)
 
