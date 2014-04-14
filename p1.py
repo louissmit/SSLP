@@ -76,9 +76,9 @@ def translate(pairs, n=20, stability=1):
 					p += t[f][e]
 			p *= (epsilon/((len(es)+1)**len(fs)))
 			log_pp += np.log2(p)
-		old_perplexity = Decimal(perplexity)
+		# old_perplexity = Decimal(perplexity)
 		# perplexity = Context().power(2, Decimal(-log_pp))#2**(-perplexity)
-		stable = abs(old_perplexity - perplexity) < stability
+		# stable = abs(old_perplexity - perplexity) < stability
 		print 'perplexity:', -log_pp, ('stable' if stable else 'not stable')
 		i += 1
 
@@ -119,6 +119,7 @@ def evaluate(alignments, n=1000):
 			break
 		if i % 3 == 0:
 			alignment = alignments[j]
+			print gold[i-2]
 			res = evaluate_alignment(alignment, gold[i-1])
 			correct += res[0]
 			total += res[1]
@@ -141,7 +142,7 @@ def evaluate_alignment(alignment, giza_gold):
 				correct += 1.0
 			total += 1.0
 
-	if (correct / total) < 0.5:
+	if (correct / total) < 0.8:
 		print giza_gold
 		print alignment
 	return correct, total
