@@ -37,28 +37,4 @@ def runEM(source, target, alpha):
 		perplexity *= -1
 		print perpexity
 
-def getViterbiAlignment(source, target, t):
-	"""
-	Gets viterbi alignment
-	@param source:
-	@param target:
-	@param t: Translation model
-	"""
-	alignments = []
-	for i in xrange(len(source)):
-		e_s = target[i]
-		f_s = source[i].strip().split(' ')
-		alignment = []
-		res = []
-		for i, f in enumerate(f_s):
-			viterbi = t[f].most_common(1)[0]
-			print viterbi
-			a_i = viterbi[1]
-			alignment.append([i, a_i])
-			word = viterbi[0]
-			res.append(word)
-		print e_s
-		print "translation", " ".join(res)
-		alignments.append(alignment)
 
-	print 'done'

@@ -1,8 +1,8 @@
 import numpy as np
+import re
 from collections import Counter
 from decimal import Context, Decimal
 # pairs = [(a.split(), b.split()) for (a,b) in [('the dog','de hond'),('the cat','de kat'),('a dog','een hond'),('a cat','een kat')]]
-from IBM import getViterbiAlignment
 
 def loadCorpus():
 	source = list(open('corpus_1000.nl', 'r'))
@@ -15,7 +15,7 @@ def corpus(n=None):
 	""" An iterator of pairs """
 	n = n or len(source)
 	for i in xrange(n):
-		yield source[i].split(),target[i].split()
+		yield source[i].split(), ['NULL']+target[i].split()
 
 def round_dc(dc, n=0):
 	""" Rounds a dictionary of Counters """
@@ -51,7 +51,6 @@ def translate(pairs, n=20, stability=1):
 	stable = False
 	i = 0
 	while i < n:
-		print i, n
 		for f in vocf:
 			count[f] = Counter()
 		total = Counter()
@@ -85,9 +84,58 @@ def translate(pairs, n=20, stability=1):
 
 	return t
 
+
+def getViterbiAlignment(pairs, t):
+	"""
+	Gets viterbi alignment
+	@param source:
+	@param target:
+	@param t: Translation model
+	"""
+	all_alignments = []
+	for (f_s, e_s) in pairs:
+		alignments = [[] for i in xrange(len(e_s))]
+		res = []
+		for j, f in enumerate(f_s):
+			max = -1
+			max_i = -1
+			for i, e in enumerate(e_s):
+				# print "t("+e+"|f) ", t[f][e]
+				if t[f][e] > max:
+					max = t[f][e]
+					max_i = i
+			alignments[max_i].append(j)
+
+		all_alignments.append(alignments)
+
+	return all_alignments
+
+def evaluate(alignments, n=1000):
+	gold = list(open('corpus_1000_ennl_viterbi', 'r'))
+	j = 0
+	correct = 0.0
+	total = 0.0
+	for i in xrange(2, len(gold)+1):
+		if j == n:
+			break
+		if i % 3 == 0:
+			alignment = alignments[j]
+			for a, match in enumerate(re.findall('\({[ 0-9]*}\)', gold[i-1])):
+				for gold_a in match[2:-2].strip().split():
+					if int(gold_a) in alignment[a]:
+						correct += 1.0
+					total += 1.0
+			j+=1
+	print (correct / total)*100.0
+
+
+
 # Example uses:
 # round_dc(translate(pairs))
-t = translate([a for a in corpus(100)], 1)
-getViterbiAlignment(source, target, t)
+n = 100
+C = [a for a in corpus(n)]
+t = translate(C, 1)
+alignments = getViterbiAlignment(C, t)
+evaluate(alignments, n)
 
 
