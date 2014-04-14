@@ -9,10 +9,10 @@ def loadCorpus():
 	target = list(open('corpus_1000.en', 'r'))
 	return source, target
 
-source, target = loadCorpus()
 
 def corpus(n=None):
 	""" An iterator of pairs """
+	source, target = loadCorpus()
 	n = n or len(source)
 	for i in xrange(n):
 		yield source[i].split(), ['NULL']+target[i].split()
@@ -94,8 +94,7 @@ def getViterbiAlignment(pairs, t):
 	"""
 	all_alignments = []
 	for (f_s, e_s) in pairs:
-		alignments = [[] for i in xrange(len(e_s))]
-		res = []
+		alignments = [[] for _ in xrange(len(e_s))]
 		for j, f in enumerate(f_s):
 			max = -1
 			max_i = -1
@@ -104,7 +103,7 @@ def getViterbiAlignment(pairs, t):
 				if t[f][e] > max:
 					max = t[f][e]
 					max_i = i
-			alignments[max_i].append(j)
+			alignments[max_i].append(j+1)
 
 		all_alignments.append(alignments)
 
@@ -119,23 +118,37 @@ def evaluate(alignments, n=1000):
 		if j == n:
 			break
 		if i % 3 == 0:
+			print gold[i-2]
 			alignment = alignments[j]
-			for a, match in enumerate(re.findall('\({[ 0-9]*}\)', gold[i-1])):
-				for gold_a in match[2:-2].strip().split():
-					if int(gold_a) in alignment[a]:
-						correct += 1.0
-					total += 1.0
+			res = evaluate_alignment(alignment, gold[i-1])
+			correct += res[0]
+			total += res[1]
 			j+=1
 	print (correct / total)*100.0
 
+def evaluate_alignment(alignment, gold):
+	"""
+
+	@param alignment:
+	@param gold:
+	@return:
+	"""
+	correct = 0.0
+	total = 0.0
+	matches = re.findall('\({[ 0-9]*}\)', gold)
+	for a, match in enumerate(matches):
+		for gold_a in match[2:-2].strip().split():
+			if int(gold_a) in alignment[a]:
+				correct += 1.0
+			total += 1.0
+	return correct, total
 
 
-# Example uses:
-# round_dc(translate(pairs))
-n = 1000
-C = [a for a in corpus(n)]
-t = translate(C, 20)
-alignments = getViterbiAlignment(C, t)
-evaluate(alignments, n)
-
-
+if __name__ == '__main__':
+	# Example uses:
+	# round_dc(translate(pairs))
+	n = 1000
+	C = [a for a in corpus(n)]
+	t = translate(C, 20)
+	alignments = getViterbiAlignment(C, t)
+	evaluate(alignments, n)
