@@ -139,10 +139,14 @@ def evaluate_alignment(alignment, giza_gold):
 	correct = 0.0
 	total = 0.0
 	matches = re.findall('\({[ 0-9]*}\)', giza_gold)
-	for a, match in enumerate(matches):
-		for gold_a in match[2:-2].strip().split():
-			if int(gold_a) in alignment[a]:
+	for m, match in enumerate(matches):
+		for a in alignment[m]:
+			gold_a = [int(x) for x in match[2:-2].strip().split()]
+			if a in gold_a:
 				correct += 1.0
+		# for gold_a in match[2:-2].strip().split():
+		# 	if int(gold_a) in alignment[a]:
+		# 		correct += 1.0
 			total += 1.0
 
 	if (correct / total) < 0.8:
@@ -168,11 +172,13 @@ if __name__ == '__main__':
 	# Example uses:
 	# round_dc(translate(pairs))
 	n = 1000
+	iters = 20
 	C = [a for a in corpus(n)]
-	t = translate(C, 20)
+	t = translate(C, iters)
 	alignments1 = getViterbiAlignment(C, t)
+	evaluate(alignments1, n)
 	C = [a for a in corpus(n, flip=True)]
-	t = translate(C, 20)
+	t = translate(C, iters)
 	alignments2 = getViterbiAlignment(C, t)
 	alignments = alignments_intersection(alignments1, alignments2)
 	evaluate(alignments, n)
