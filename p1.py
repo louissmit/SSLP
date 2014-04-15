@@ -1,6 +1,7 @@
 import numpy as np
 import re
 from collections import Counter
+import pickle
 from decimal import Context, Decimal
 # pairs = [(a.split(), b.split()) for (a,b) in [('the dog','de hond'),('the cat','de kat'),('a dog','een hond'),('a cat','een kat')]]
 
@@ -102,7 +103,6 @@ def getViterbiAlignment(pairs, t):
 			max = -1
 			max_i = -1
 			for i, e in enumerate(e_s):
-				# print "t("+e+"|f) ", t[f][e]
 				if t[f][e] > max:
 					max = t[f][e]
 					max_i = i
@@ -117,17 +117,19 @@ def evaluate(alignments, n=1000):
 	j = 0
 	correct = 0.0
 	total = 0.0
+	r_total = 0.0
 	for i in xrange(2, len(gold)+1):
 		if j == n:
 			break
 		if i % 3 == 0:
 			alignment = alignments[j]
-			print gold[i-2]
 			res = evaluate_alignment(alignment, gold[i-1])
 			correct += res[0]
 			total += res[1]
+			r_total += res[2]
 			j+=1
-	print (correct / total)*100.0
+	print "precision: ", (correct / total)*100.0
+	print "recall: ", (correct / r_total)*100.0
 
 def evaluate_alignment(alignment, giza_gold):
 	"""
@@ -138,21 +140,17 @@ def evaluate_alignment(alignment, giza_gold):
 	"""
 	correct = 0.0
 	total = 0.0
+	r_total = 0.0
 	matches = re.findall('\({[ 0-9]*}\)', giza_gold)
 	for m, match in enumerate(matches):
+		gold_a = [int(x) for x in match[2:-2].strip().split()]
+		r_total += len(gold_a)
 		for a in alignment[m]:
-			gold_a = [int(x) for x in match[2:-2].strip().split()]
 			if a in gold_a:
 				correct += 1.0
-		# for gold_a in match[2:-2].strip().split():
-		# 	if int(gold_a) in alignment[a]:
-		# 		correct += 1.0
 			total += 1.0
 
-	if (correct / total) < 0.8:
-		print giza_gold
-		print alignment
-	return correct, total
+	return correct, total, r_total
 
 def intersect_alignments(al1, al2):
 	res= [[] for _ in xrange(len(al1))]
@@ -176,9 +174,11 @@ if __name__ == '__main__':
 	C = [a for a in corpus(n)]
 	t = translate(C, iters)
 	alignments1 = getViterbiAlignment(C, t)
+	pickle.dump(alignments1, open('alignments1', 'wb'))
 	evaluate(alignments1, n)
 	C = [a for a in corpus(n, flip=True)]
 	t = translate(C, iters)
 	alignments2 = getViterbiAlignment(C, t)
+	pickle.dump(alignments2, open('alignments2', 'wb'))
 	alignments = alignments_intersection(alignments1, alignments2)
 	evaluate(alignments, n)
