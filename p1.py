@@ -55,23 +55,29 @@ def translate(pairs, n=20, stability=1):
 	stable = False
 	i = 0
 	while i < n:
+		#initialize count and total to 0
 		for f in vocf:
 			count[f] = Counter()
 		total = Counter()
 
+		# normalization
 		for (fs, es) in pairs:
 			total_s = Counter()
 			for f in fs:
-				total_s[f] = sum(t[f].values())
+				for e in es:
+					total_s[f] += t[f][e]
+			#collect counts
 			for f in fs:
 				for e in es:
 					count[f][e] += t[f][e] / total_s[f]
 					total[e] += t[f][e] / total_s[f]
 
+		# estimate probabilities
 		for e in voce:
 			for f in vocf:
 				t[f][e] = count[f][e] / total[e]
 
+		# calculate log perplexity
 		log_pp = 0
 		for (fs, es) in pairs:
 			p = 0.0
@@ -83,7 +89,7 @@ def translate(pairs, n=20, stability=1):
 		# old_perplexity = Decimal(perplexity)
 		# perplexity = Context().power(2, Decimal(-log_pp))#2**(-perplexity)
 		# stable = abs(old_perplexity - perplexity) < stability
-		print 'perplexity:', -log_pp, ('stable' if stable else 'not stable')
+		print 'log perplexity:', -log_pp, ('stable' if stable else 'not stable')
 		i += 1
 
 	return t
