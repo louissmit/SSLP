@@ -6,8 +6,8 @@ from decimal import Context, Decimal
 # pairs = [(a.split(), b.split()) for (a,b) in [('the dog','de hond'),('the cat','de kat'),('a dog','een hond'),('a cat','een kat')]]
 
 def loadCorpus(flip=False):
-	source = list(open('corpus_1000.nl', 'r'))
-	target = list(open('corpus_1000.en', 'r'))
+	source = list(open('corpus_1000.en', 'r'))
+	target = list(open('corpus_1000.nl', 'r'))
 	if flip:
 		return target, source
 	else:
@@ -19,7 +19,7 @@ def corpus(n=None, flip=False):
 	source, target = loadCorpus(flip)
 	n = n or len(source)
 	for i in xrange(n):
-		yield source[i].split(), ['NULL']+target[i].split()
+		yield target[i].split(), ['NULL']+source[i].split()
 
 def round_dc(dc, n=0):
 	""" Rounds a dictionary of Counters """
@@ -41,7 +41,7 @@ def translate(pairs, n=20):
 	voce = Counter([b for _,a in pairs for b in a])
 
 	epsilon = 1.0
-	alpha = 0.00001
+	alpha = 0.0000
 	v = 100000
 	print 'epsilon:', epsilon
 
@@ -49,7 +49,7 @@ def translate(pairs, n=20):
 	for f in vocf:
 		t[f] = Counter()
 		for e in voce:
-			t[f][e] = 1.0/len(voce)
+			t[f][e] = np.random.random_sample()#  1.0/len(voce)
 
 	i = 0
 	while i < n:
@@ -169,8 +169,8 @@ def alignments_intersection(als1, als2):
 if __name__ == '__main__':
 	# Example uses:
 	# round_dc(translate(pairs))
-	n = 1000
-	iters = 20
+	n = 100
+	iters = 3
 	C = [a for a in corpus(n)]
 	t = translate(C, iters)
 	alignments1 = getViterbiAlignment(C, t)
