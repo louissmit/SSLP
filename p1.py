@@ -32,17 +32,17 @@ def round_dc(dc, n=0):
 		dc[k] = new
 	return dc
 
-def translate(pairs, n=20, stability=1):
+def translate(pairs, n=20):
 	""" Builds IBM1 translation table, doing EM until the perplexity difference is < `stability` """
-	# doublecounter : f -> e -> val
 	t = {}
 	count = {}
 
 	vocf = Counter([b for a,_ in pairs for b in a])
 	voce = Counter([b for _,a in pairs for b in a])
 
-	epsilon = 1.0 # float!!!
-	# epsilon = sum([len(x) for x,_ in pairs]) / float(len(pairs))
+	epsilon = 1.0
+	alpha = 0.00001
+	v = 100000
 	print 'epsilon:', epsilon
 
 	# initialize uniform
@@ -51,8 +51,6 @@ def translate(pairs, n=20, stability=1):
 		for e in voce:
 			t[f][e] = 1.0/len(voce)
 
-	perplexity = float('inf')
-	stable = False
 	i = 0
 	while i < n:
 		#initialize count and total to 0
@@ -75,7 +73,7 @@ def translate(pairs, n=20, stability=1):
 		# estimate probabilities
 		for e in voce:
 			for f in vocf:
-				t[f][e] = count[f][e] / total[e]
+				t[f][e] = (count[f][e] + alpha) / (total[e] + v*alpha)
 
 		# calculate log perplexity
 		log_pp = 0
@@ -86,10 +84,7 @@ def translate(pairs, n=20, stability=1):
 					p += t[f][e]
 			p *= (epsilon/((len(es)+1)**len(fs)))
 			log_pp += np.log2(p)
-		# old_perplexity = Decimal(perplexity)
-		# perplexity = Context().power(2, Decimal(-log_pp))#2**(-perplexity)
-		# stable = abs(old_perplexity - perplexity) < stability
-		print 'log perplexity:', -log_pp, ('stable' if stable else 'not stable')
+		print 'log perplexity:', -log_pp
 		i += 1
 
 	return t
@@ -98,8 +93,7 @@ def translate(pairs, n=20, stability=1):
 def getViterbiAlignment(pairs, t):
 	"""
 	Gets viterbi alignment
-	@param source:
-	@param target:
+	@param pairs:
 	@param t: Translation model
 	"""
 	all_alignments = []
