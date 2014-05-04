@@ -1,47 +1,67 @@
 import numpy as np
-
-f_sent = open('project2_data/training/p2_training.en', 'r').readline().split()
-e_sent = open('project2_data/training/p2_training.nl', 'r').readline().split()
-al = open('project2_data/training/p2_training_symal.nlen', 'r').readline().split()
-
-al = [a.split('-') for a in al]
-A = [(int(a[0]), int(a[1])) for a in al]
-print A
-print len(f_sent)
-
-
+from pprint import pprint
+from collections import Counter
 
 def extract(A, f_sent, f_start, f_end, e_sent, e_start, e_end):
-	if f_end == 0:
+	# check if at least one alignment point
+	if f_end == -1:
 		return []
 
-	for (e, f) in A:
-		# print 'yes', e_start, e, e_end
-		if e < e_start or e > e_end:
-			# print 'no', e_start, e, e_end
-			return []
+	# This doesnt make any sense to me
+	# for (e, f) in A:
+	# 	if e < e_start or e > e_end:
+	# 		return []
 
+	# add pharse pairs (incl. additional unaligned f)
 	E = []
 	f_s = f_start
-	print f_start, f_end
-	while f_s > 0:
+	while f_s >= 0:
 		f_e = f_end
-		while f_e < len(f_sent):
-			E.append((e_sent[e_start:e_end], f_sent[f_start:f_end]))
-			print E
+		while f_e <= len(f_sent):
+			if e_start == e_end:
+				e_phrase = e_sent[e_start]
+			else:
+				e_phrase = " ".join(e_sent[e_start:e_end])
+			if f_s == f_e:
+				f_phrase = f_sent[f_s]
+			else:
+				f_phrase = " ".join(f_sent[f_s:f_e])
+
+			E.append((e_phrase, f_phrase))
 			f_e += 1
 		f_s -= 1
 
 	return E
 
+def extract_phrase_pairs(n=1):
 
-BP = []
-for e_start in xrange(0, len(e_sent)):
-	for e_end in xrange(e_start, len(e_sent)):
-		f_start, f_end = (len(f_sent), 0)
-		for (e, f) in A:
-			if e_start <= e <= e_end:
-				f_start = min(f, f_start)
-				f_end = max(f, f_end)
+	ffile = open('project2_data/training/p2_training.en', 'r')
+	efile = open('project2_data/training/p2_training.nl', 'r')
+	alfile = open('project2_data/training/p2_training_symal.nlen', 'r')
 
-			BP += extract(A, f_sent, f_start, f_end, e_sent, e_start, e_end)
+	BP = Counter()
+
+	i = 0
+	while i < n:
+		f_sent = ffile.readline().split()
+		e_sent = efile.readline().split()
+		al = [a.split('-') for a in alfile.readline().split()]
+		A = [(int(a[0]), int(a[1])) for a in al]
+
+		for e_start in xrange(0, len(e_sent)):
+			for e_end in xrange(e_start, len(e_sent)):
+				# find the minimally matching foreign phrase
+				f_start, f_end = (len(f_sent), -1)
+				for (e, f) in A:
+					if e_start <= e <= e_end:
+						f_start = min(f, f_start)
+						f_end = max(f, f_end)
+
+				# count phrase pairs
+				for key in extract(A, f_sent, f_start, f_end, e_sent, e_start, e_end):
+					BP[key] += 1
+		i += 1
+	return BP
+
+BP = extract_phrase_pairs()
+pprint(BP.most_common(10))
