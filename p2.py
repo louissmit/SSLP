@@ -5,7 +5,7 @@ from collections import Counter
 
 def extract(A, f_sent, f_start, f_end, e_sent, e_start, e_end):
 	# check if at least one alignment point
-	if f_end == -1:
+	if f_end == -1 or abs(f_end - f_start) > 4:
 		return []
 
 	# check if alignment points violate consistency
@@ -33,9 +33,13 @@ def extract(A, f_sent, f_start, f_end, e_sent, e_start, e_end):
 
 			E.append((e_phrase, f_phrase))
 			f_e += 1
-			if f_e in fa or f_e > len(f_sent): break
+			if f_e in fa or f_e > len(f_sent)\
+				or abs(f_e - f_s) > 4:
+				break
 		f_s -= 1
-		if f_s in fa or f_s < 0: break
+		if f_s in fa or f_s < 0\
+			or abs(f_e - f_s) > 4:
+			break
 
 	return E
 
@@ -55,7 +59,9 @@ def extract_phrase_pairs(n=100):
 		A = [(int(a[0]), int(a[1])) for a in al]
 
 		for e_start in xrange(0, len(e_sent)):
-			for e_end in xrange(e_start, len(e_sent)):
+			e_range = e_start + 4
+			erange = e_range if e_range < len(e_sent) else len(e_sent)
+			for e_end in xrange(e_start, e_range):
 				# find the minimally matching foreign phrase
 				f_start, f_end = (len(f_sent), -1)
 				for (e, f) in A:
@@ -71,4 +77,4 @@ def extract_phrase_pairs(n=100):
 
 
 BP = extract_phrase_pairs()
-pprint(BP.most_common(200))
+pprint(BP.most_common())
