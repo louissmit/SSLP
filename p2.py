@@ -9,10 +9,11 @@ def extract(A, f_sent, f_start, f_end, e_sent, e_start, e_end):
 		return []
 
 	# check if alignment points violate consistency
-	# ----This doesnt make any sense to me
-	# for (e, f) in A:
-	# 	if e < e_start or e > e_end:
-	# 		return []
+	# ----This part of the Koehn algorithm doesnt make any sense to me so I changed it
+	e_match = [a[0] for a in A if f_start <= a[1] <= f_end]
+	for e in e_match:
+		if e < e_start or e > e_end:
+			return []
 
 	# add phrase pairs (incl. additional unaligned f)
 	E = []
@@ -32,14 +33,14 @@ def extract(A, f_sent, f_start, f_end, e_sent, e_start, e_end):
 
 			E.append((e_phrase, f_phrase))
 			f_e += 1
-			if f_e not in fa: break
+			if f_e in fa or f_e > len(f_sent): break
 		f_s -= 1
-		if f_s not in fa: break
+		if f_s in fa or f_s < 0: break
 
 	return E
 
 
-def extract_phrase_pairs(n=1):
+def extract_phrase_pairs(n=100):
 	ffile = open('project2_data/training/p2_training.en', 'r')
 	efile = open('project2_data/training/p2_training.nl', 'r')
 	alfile = open('project2_data/training/p2_training_symal.nlen', 'r')
@@ -70,4 +71,4 @@ def extract_phrase_pairs(n=1):
 
 
 BP = extract_phrase_pairs()
-pprint(BP.most_common(100))
+pprint(BP.most_common(200))
