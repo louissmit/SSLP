@@ -44,12 +44,12 @@ def extract(A, f_sent, f_start, f_end, e_sent, e_start, e_end):
 	return E
 
 
-def extract_phrase_pairs(n=100):
+def extract_phrase_pairs(n=10):
 	ffile = open('project2_data/training/p2_training.en', 'r')
 	efile = open('project2_data/training/p2_training.nl', 'r')
 	alfile = open('project2_data/training/p2_training_symal.nlen', 'r')
 
-	BP = Counter()
+	BP = {}
 
 	i = 0
 	while i < n:
@@ -70,11 +70,20 @@ def extract_phrase_pairs(n=100):
 						f_end = max(f, f_end)
 
 				# count phrase pairs
-				for key in extract(A, f_sent, f_start, f_end, e_sent, e_start, e_end):
-					BP[key] += 1
+				for (e_phrase, f_phrase) in extract(A, f_sent, f_start, f_end, e_sent, e_start, e_end):
+					if not BP.has_key(e_phrase):
+						BP[e_phrase] = Counter()
+					BP[e_phrase][f_phrase] += 1
 		i += 1
+
+	# conditional probabilities
+	for e_phrase, counter in BP.iteritems():
+		total = sum(counter.values())*1.0
+		for f_phrase in counter:
+			BP[e_phrase][f_phrase] /= total
 	return BP
 
 
 BP = extract_phrase_pairs()
-pprint(BP.most_common())
+# pprint([(key, counter) for key, counter in BP.iteritems() if sum(counter.values()) > 100])
+pprint(BP)
