@@ -2,22 +2,25 @@ import numpy as np
 from pprint import pprint
 from collections import Counter
 
+
 def extract(A, f_sent, f_start, f_end, e_sent, e_start, e_end):
 	# check if at least one alignment point
 	if f_end == -1:
 		return []
 
-	# This doesnt make any sense to me
+	# check if alignment points violate consistency
+	# ----This doesnt make any sense to me
 	# for (e, f) in A:
 	# 	if e < e_start or e > e_end:
 	# 		return []
 
-	# add pharse pairs (incl. additional unaligned f)
+	# add phrase pairs (incl. additional unaligned f)
 	E = []
 	f_s = f_start
-	while f_s >= 0:
+	fa = [a[1] for a in A]
+	while True:
 		f_e = f_end
-		while f_e <= len(f_sent):
+		while True:
 			if e_start == e_end:
 				e_phrase = e_sent[e_start]
 			else:
@@ -29,12 +32,14 @@ def extract(A, f_sent, f_start, f_end, e_sent, e_start, e_end):
 
 			E.append((e_phrase, f_phrase))
 			f_e += 1
+			if f_e not in fa: break
 		f_s -= 1
+		if f_s not in fa: break
 
 	return E
 
-def extract_phrase_pairs(n=1):
 
+def extract_phrase_pairs(n=1):
 	ffile = open('project2_data/training/p2_training.en', 'r')
 	efile = open('project2_data/training/p2_training.nl', 'r')
 	alfile = open('project2_data/training/p2_training_symal.nlen', 'r')
@@ -63,5 +68,6 @@ def extract_phrase_pairs(n=1):
 		i += 1
 	return BP
 
+
 BP = extract_phrase_pairs()
-pprint(BP.most_common(10))
+pprint(BP.most_common(100))
