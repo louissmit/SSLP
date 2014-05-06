@@ -44,10 +44,10 @@ def extract(A, f_sent, f_start, f_end, e_sent, e_start, e_end):
 	return E
 
 
-def extract_phrase_pairs(n=10):
-	ffile = open('project2_data/training/p2_training.en', 'r')
-	efile = open('project2_data/training/p2_training.nl', 'r')
-	alfile = open('project2_data/training/p2_training_symal.nlen', 'r')
+def extract_phrase_pairs(n=10000000, set='training'):
+	ffile = open('project2_data/'+set+'/p2_'+set+'.en', 'r')
+	efile = open('project2_data/'+set+'/p2_'+set+'.nl', 'r')
+	alfile = open('project2_data/'+set+'/p2_'+set+'_symal.nlen', 'r')
 
 	BP = {}
 
@@ -84,6 +84,22 @@ def extract_phrase_pairs(n=10):
 	return BP
 
 
+def calculate_coverage(heldout_phrasetable, train_phrasetable):
+	total = 0.0
+	right = 0.0
+	for e_phrase, counter in heldout_phrasetable.iteritems():
+		for f_phrase in counter:
+			total += 1
+			if e_phrase in train_phrasetable:
+				if f_phrase in train_phrasetable[e_phrase]:
+					right += 1
+
+	return (right / total) * 100.0
+
+
+
 BP = extract_phrase_pairs()
+BP2 = extract_phrase_pairs(set='heldout')
+print calculate_coverage(BP2, BP)
 # pprint([(key, counter) for key, counter in BP.iteritems() if sum(counter.values()) > 100])
-pprint(BP)
+# pprint(BP)
