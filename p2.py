@@ -85,7 +85,7 @@ def extract_phrase_pairs(n=100000, set='training'):
 	return BP
 
 
-def calculate_coverage(heldout_phrasetable, train_phrasetable):
+def calculate_coverage(heldout_phrasetable, train_phrasetable, candidate_range):
 	total = 0.0
 	right = 0.0
 	concatright = 0.0
@@ -97,14 +97,15 @@ def calculate_coverage(heldout_phrasetable, train_phrasetable):
 				if f_phrase in train_phrasetable[e_phrase]:
 					right += 1
 					concatright += 1
-			elif find_concatenated_phrase(phrasepair, train_phrasetable):
+			elif find_concatenated_phrase(phrasepair, train_phrasetable, candidate_range):
 				concatright += 1
 
+	print 'candidate_range: ', candidate_range
 	print 'with concat: ', (concatright / total) * 100.0
 	print 'without concat: ', (right / total) * 100.0
 
 
-def find_concatenated_phrase(phrasepair, phrasetable):
+def find_concatenated_phrase(phrasepair, phrasetable, canidate_range):
 	e_phrase = phrasepair[0].split()
 	f_phrase = phrasepair[1]
 	for i1 in xrange(1,len(e_phrase)-1):
@@ -121,7 +122,6 @@ def find_concatenated_phrase(phrasepair, phrasetable):
 				f_phrases = [phrasetable[phrase1], phrasetable[phrase2], phrasetable[phrase3]]
 				for indices in itertools.permutations([0,1,2]):
 					candidate_f = [f_phrases[i].keys() for i in indices]
-					candidate_range = 4
 					for one in candidate_f[0][:candidate_range]:
 						for two in candidate_f[1][:candidate_range]:
 							for three in candidate_f[2][:candidate_range]:
@@ -135,7 +135,8 @@ def find_concatenated_phrase(phrasepair, phrasetable):
 if __name__ == '__main__':
 	BP = extract_phrase_pairs()
 	BP2 = extract_phrase_pairs(set='heldout')
-	calculate_coverage(BP2, BP)
+	for candidate_range in xrange(1, 100):
+		calculate_coverage(BP2, BP, candidate_range)
 	# pprint([(key, counter) for key, counter in BP.iteritems() if sum(counter.values()) > 100])
 	# pprint(BP)
 
