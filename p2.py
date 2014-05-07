@@ -1,7 +1,7 @@
 import numpy as np
 from pprint import pprint
 from collections import Counter
-
+import itertools
 
 def extract(A, f_sent, f_start, f_end, e_sent, e_start, e_end):
 	# check if at least one alignment point
@@ -44,7 +44,7 @@ def extract(A, f_sent, f_start, f_end, e_sent, e_start, e_end):
 	return E
 
 
-def extract_phrase_pairs(n=10000000, set='training'):
+def extract_phrase_pairs(n=10, set='training'):
 	ffile = open('project2_data/'+set+'/p2_'+set+'.en', 'r')
 	efile = open('project2_data/'+set+'/p2_'+set+'.nl', 'r')
 	alfile = open('project2_data/'+set+'/p2_'+set+'_symal.nlen', 'r')
@@ -87,15 +87,47 @@ def extract_phrase_pairs(n=10000000, set='training'):
 def calculate_coverage(heldout_phrasetable, train_phrasetable):
 	total = 0.0
 	right = 0.0
+	concatright = 0.0
 	for e_phrase, counter in heldout_phrasetable.iteritems():
 		for f_phrase in counter:
 			total += 1
+			phrasepair = (e_phrase, f_phrase)
 			if e_phrase in train_phrasetable:
 				if f_phrase in train_phrasetable[e_phrase]:
 					right += 1
+					concatright += 1
+			elif find_concatenated_phrase(phrasepair, train_phrasetable):
+				right += 1
+				concatright += 1
 
 	return (right / total) * 100.0
 
+
+def find_concatenated_phrase(phrasepair, phrasetable):
+	e_phrase = phrasepair[0].split()
+	f_phrase = phrasepair[1]
+	for i1 in xrange(1,len(e_phrase)-1):
+		for i2 in xrange(i1+1, len(e_phrase)):
+			phrase1 = " ".join(e_phrase[:i1])
+			phrase2 = " ".join(e_phrase[i1:i2])
+			phrase3 = " ".join(e_phrase[i2:])
+			nope = False
+			for phrase in [phrase1, phrase2, phrase3]:
+				if phrase not in phrasetable:
+					nope = True
+					break
+			if not nope:
+				f_phrases = [phrasetable[phrase1], phrasetable[phrase2], phrasetable[phrase3]]
+				for indices in itertools.permutations([0,1,2]):
+					candidate_f = " ".join([f_phrases[i].keys()[0] for i in indices])
+					if candidate_f is f_phrase:
+						return True
+
+
+	# this = BP['het'].keys()[0]
+	# that = BP['gebrek'].keys()[0]
+	# print " ".join([this, that])
+	return False
 
 
 BP = extract_phrase_pairs()
@@ -103,3 +135,4 @@ BP2 = extract_phrase_pairs(set='heldout')
 print calculate_coverage(BP2, BP)
 # pprint([(key, counter) for key, counter in BP.iteritems() if sum(counter.values()) > 100])
 # pprint(BP)
+
