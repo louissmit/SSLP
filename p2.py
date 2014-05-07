@@ -44,7 +44,7 @@ def extract(A, f_sent, f_start, f_end, e_sent, e_start, e_end):
 	return E
 
 
-def extract_phrase_pairs(n=10, set='training'):
+def extract_phrase_pairs(n=100, set='training'):
 	ffile = open('project2_data/'+set+'/p2_'+set+'.en', 'r')
 	efile = open('project2_data/'+set+'/p2_'+set+'.nl', 'r')
 	alfile = open('project2_data/'+set+'/p2_'+set+'_symal.nlen', 'r')
@@ -97,10 +97,10 @@ def calculate_coverage(heldout_phrasetable, train_phrasetable):
 					right += 1
 					concatright += 1
 			elif find_concatenated_phrase(phrasepair, train_phrasetable):
-				right += 1
 				concatright += 1
 
-	return (right / total) * 100.0
+	print 'with concat: ', (concatright / total) * 100.0
+	print 'without concat: ', (right / total) * 100.0
 
 
 def find_concatenated_phrase(phrasepair, phrasetable):
@@ -119,9 +119,12 @@ def find_concatenated_phrase(phrasepair, phrasetable):
 			if not nope:
 				f_phrases = [phrasetable[phrase1], phrasetable[phrase2], phrasetable[phrase3]]
 				for indices in itertools.permutations([0,1,2]):
-					candidate_f = " ".join([f_phrases[i].keys()[0] for i in indices])
-					if candidate_f is f_phrase:
-						return True
+					candidate_f = [f_phrases[i].keys() for i in indices]
+					for one in candidate_f[0]:
+						for two in candidate_f[1]:
+							for three in candidate_f[2]:
+								if " ".join([one, two, three]) == f_phrase:
+									return True
 
 
 	# this = BP['het'].keys()[0]
@@ -130,9 +133,11 @@ def find_concatenated_phrase(phrasepair, phrasetable):
 	return False
 
 
-BP = extract_phrase_pairs()
-BP2 = extract_phrase_pairs(set='heldout')
-print calculate_coverage(BP2, BP)
-# pprint([(key, counter) for key, counter in BP.iteritems() if sum(counter.values()) > 100])
-# pprint(BP)
+
+if __name__ == '__main__':
+	BP = extract_phrase_pairs()
+	BP2 = extract_phrase_pairs(set='heldout')
+	calculate_coverage(BP2, BP)
+	# pprint([(key, counter) for key, counter in BP.iteritems() if sum(counter.values()) > 100])
+	# pprint(BP)
 
