@@ -10,6 +10,7 @@ def extract(A, f_sent, f_start, f_end, e_sent, e_start, e_end):
 
 	# check if alignment points violate consistency
 	# ----This part of the Koehn algorithm doesnt make any sense to me so I changed it
+	# 		check only for alignments that are within the f-side's borders
 	e_match = [a[0] for a in A if f_start <= a[1] <= f_end]
 	for e in e_match:
 		if e < e_start or e > e_end:
