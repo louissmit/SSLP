@@ -44,7 +44,7 @@ def extract(A, f_sent, f_start, f_end, e_sent, e_start, e_end):
 	return E
 
 
-def extract_phrase_pairs(n=100, set='training'):
+def extract_phrase_pairs(n=1000, set='training'):
 	ffile = open('project2_data/'+set+'/p2_'+set+'.en', 'r')
 	efile = open('project2_data/'+set+'/p2_'+set+'.nl', 'r')
 	alfile = open('project2_data/'+set+'/p2_'+set+'_symal.nlen', 'r')
@@ -120,16 +120,12 @@ def find_concatenated_phrase(phrasepair, phrasetable):
 				f_phrases = [phrasetable[phrase1], phrasetable[phrase2], phrasetable[phrase3]]
 				for indices in itertools.permutations([0,1,2]):
 					candidate_f = [f_phrases[i].keys() for i in indices]
-					for one in candidate_f[0]:
-						for two in candidate_f[1]:
-							for three in candidate_f[2]:
+					for one in candidate_f[0][:3]:
+						for two in candidate_f[1][:3]:
+							for three in candidate_f[2][:3]:
 								if " ".join([one, two, three]) == f_phrase:
 									return True
 
-
-	# this = BP['het'].keys()[0]
-	# that = BP['gebrek'].keys()[0]
-	# print " ".join([this, that])
 	return False
 
 
