@@ -104,6 +104,7 @@ def calculate_coverage(heldout_phrasetable, train_phrasetable, candidate_range):
 	print 'candidate_range: ', candidate_range
 	print 'with concat: ', (concatright / total) * 100.0
 	print 'without concat: ', (right / total) * 100.0
+	return (concatright / total) * 100.0
 
 
 def find_concatenated_phrase(phrasepair, phrasetable, candidate_range):
@@ -139,10 +140,17 @@ def find_concatenated_phrase(phrasepair, phrasetable, candidate_range):
 
 
 if __name__ == '__main__':
-	BP = extract_phrase_pairs()
-	BP2 = extract_phrase_pairs(set='heldout')
+	n = 10000
+	BP = extract_phrase_pairs(n=n)
+	BP2 = extract_phrase_pairs(n=n, set='heldout')
+	pres = []
+	f = open('results'+str(n), 'w')
 	for candidate_range in xrange(1, 100):
-		calculate_coverage(BP2, BP, candidate_range)
+		pres.append(calculate_coverage(BP2, BP, candidate_range))
+		print pres
+		f.write(pres)
+
+
 	# pprint([(key, counter) for key, counter in BP.iteritems() if sum(counter.values()) > 100])
 	# pprint(BP)
 	res = list(open('results2.txt', 'r').readlines())
