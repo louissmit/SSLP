@@ -101,9 +101,9 @@ def calculate_coverage(heldout_phrasetable, train_phrasetable, candidate_range):
 			elif find_concatenated_phrase(phrasepair, train_phrasetable, candidate_range):
 				concatright += 1
 
-	# print 'candidate_range: ', candidate_range
+	print 'candidate_range: ', candidate_range
 	print 'with concat: ', (concatright / total) * 100.0
-	# print 'without concat: ', (right / total) * 100.0
+	print 'without concat: ', (right / total) * 100.0
 
 
 def find_concatenated_phrase(phrasepair, phrasetable, candidate_range):
