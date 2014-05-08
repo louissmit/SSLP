@@ -148,7 +148,7 @@ if __name__ == '__main__':
 	for candidate_range in xrange(1, 100):
 		pres.append(calculate_coverage(BP2, BP, candidate_range))
 		print pres
-		f.write(pres)
+		f.write(str(pres))
 
 
 	# pprint([(key, counter) for key, counter in BP.iteritems() if sum(counter.values()) > 100])
