@@ -1,5 +1,6 @@
 import numpy as np
 from pprint import pprint
+import matplotlib.pyplot as plt
 from collections import Counter
 import itertools
 
@@ -45,7 +46,7 @@ def extract(A, f_sent, f_start, f_end, e_sent, e_start, e_end):
 	return E
 
 
-def extract_phrase_pairs(n=100000, set='training'):
+def extract_phrase_pairs(n=1000, set='training'):
 	ffile = open('project2_data/'+set+'/p2_'+set+'.en', 'r')
 	efile = open('project2_data/'+set+'/p2_'+set+'.nl', 'r')
 	alfile = open('project2_data/'+set+'/p2_'+set+'_symal.nlen', 'r')
@@ -105,22 +106,27 @@ def calculate_coverage(heldout_phrasetable, train_phrasetable, candidate_range):
 	print 'without concat: ', (right / total) * 100.0
 
 
-def find_concatenated_phrase(phrasepair, phrasetable, canidate_range):
+def find_concatenated_phrase(phrasepair, phrasetable, candidate_range):
 	e_phrase = phrasepair[0].split()
 	f_phrase = phrasepair[1]
 	for i1 in xrange(1,len(e_phrase)-1):
-		for i2 in xrange(i1+1, len(e_phrase)):
+		for i2 in xrange(i1, len(e_phrase)):
 			phrase1 = " ".join(e_phrase[:i1])
 			phrase2 = " ".join(e_phrase[i1:i2])
 			phrase3 = " ".join(e_phrase[i2:])
+			phrases = [phrase1, phrase2, phrase3]
+
+			if i1 == i2 and (" ".join([phrase3, phrase1]) == f_phrase):
+				return True
+
 			nope = False
-			for phrase in [phrase1, phrase2, phrase3]:
+			for phrase in phrases:
 				if phrase not in phrasetable:
 					nope = True
 					break
 			if not nope:
-				f_phrases = [phrasetable[phrase1], phrasetable[phrase2], phrasetable[phrase3]]
-				for indices in itertools.permutations([0,1,2]):
+				f_phrases = [phrasetable[phrase] for phrase in phrases]
+				for indices in itertools.permutations([0, 1, 2]):
 					candidate_f = [f_phrases[i].keys() for i in indices]
 					for one in candidate_f[0][:candidate_range]:
 						for two in candidate_f[1][:candidate_range]:
@@ -139,4 +145,12 @@ if __name__ == '__main__':
 		calculate_coverage(BP2, BP, candidate_range)
 	# pprint([(key, counter) for key, counter in BP.iteritems() if sum(counter.values()) > 100])
 	# pprint(BP)
+	res = list(open('results2.txt', 'r').readlines())
+	# res = list(open('results3.txt', 'r').readlines())
+	Y = [float(line.strip().split()[2]) for i, line in enumerate(res) if (((i-1) % 3) == 0)]
+	X = [i for i in xrange(1, len(Y)+1)]
+	plt.plot(X, Y)
+	plt.plot(X, [18.8946859903 for _ in Y])
+	# plt.plot(X, [37.0615136876 for _ in Y])
+	plt.show()
 
