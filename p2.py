@@ -5,6 +5,18 @@ from collections import Counter
 import itertools
 
 def extract(A, f_sent, f_start, f_end, e_sent, e_start, e_end):
+	"""
+	Given a phrase pair, returns the set of consistent phrase pairs associated with it.
+
+	@param A: set of alignment tuples (f_a, e_a)
+	@param f_sent: f sentence
+	@param f_start: start index of f phrase to be considered
+	@param f_end: endindex of f phrase to be considered
+	@param e_sent: e sentence
+	@param e_start: start index of e phrase to be considered
+	@param e_end: end index of e phrase to be considered
+	@return E: set of valid phrase pairs
+	"""
 	# check if at least one alignment point
 	if f_end == -1 or abs(f_end - f_start) > 4:
 		return []
@@ -12,9 +24,8 @@ def extract(A, f_sent, f_start, f_end, e_sent, e_start, e_end):
 	# check if alignment points violate consistency
 	# ----This part of the Koehn algorithm doesnt make any sense to me so I changed it
 	# 		check only for alignments that are within the f-side's borders
-	e_match = [a[0] for a in A if f_start <= a[1] <= f_end]
-	for e in e_match:
-		if e < e_start or e > e_end:
+	for e, f in A:
+		if (e < e_start or e > e_end) and (f_start <= f <= f_end):
 			return []
 
 	# add phrase pairs (incl. additional unaligned f)
@@ -46,7 +57,14 @@ def extract(A, f_sent, f_start, f_end, e_sent, e_start, e_end):
 	return E
 
 
-def extract_phrase_pairs(n=1000, set='training'):
+def extract_phrase_table(n=1000, set='training'):
+	"""
+	Extracts a phrase table from a corpus of size n.
+
+	@param n: amount of sentences to use
+	@param set: which set: {'training', 'heldout', 'test'}
+	@return: phrase table BP
+	"""
 	ffile = open('project2_data/'+set+'/p2_'+set+'.en', 'r')
 	efile = open('project2_data/'+set+'/p2_'+set+'.nl', 'r')
 	alfile = open('project2_data/'+set+'/p2_'+set+'_symal.nlen', 'r')
@@ -62,7 +80,7 @@ def extract_phrase_pairs(n=1000, set='training'):
 
 		for e_start in xrange(0, len(e_sent)):
 			e_range = e_start + 4
-			erange = e_range if e_range < len(e_sent) else len(e_sent)
+			e_range = e_range if e_range < len(e_sent) else len(e_sent)
 			for e_end in xrange(e_start, e_range):
 				# find the minimally matching foreign phrase
 				f_start, f_end = (len(f_sent), -1)
@@ -87,6 +105,14 @@ def extract_phrase_pairs(n=1000, set='training'):
 
 
 def calculate_coverage(heldout_phrasetable, train_phrasetable, candidate_range):
+	"""
+	Calculates coverage.
+
+	@param heldout_phrasetable:
+	@param train_phrasetable:
+	@param candidate_range: nr of n-best f-phrases used
+	@return: coverage
+	"""
 	total = 0.0
 	right = 0.0
 	concatright = 0.0
@@ -108,6 +134,14 @@ def calculate_coverage(heldout_phrasetable, train_phrasetable, candidate_range):
 
 
 def find_concatenated_phrase(phrasepair, phrasetable, candidate_range):
+	"""
+	Checks if a concatenation of up to 3 phrases is possible to achieve the phrasepair.
+
+	@param phrasepair: to be realized
+	@param phrasetable: phrase table
+	@param candidate_range: nr of n-best f-phrases used
+	@return: True if it can be built from concatenated phrase pairs, False otherwise
+	"""
 	e_phrase = phrasepair[0].split()
 	f_phrase = phrasepair[1]
 	for i1 in xrange(1,len(e_phrase)-1):
@@ -117,14 +151,16 @@ def find_concatenated_phrase(phrasepair, phrasetable, candidate_range):
 			phrase3 = " ".join(e_phrase[i2:])
 			phrases = [phrase1, phrase2, phrase3]
 
+			# check 2 phrase inversion
 			if i1 == i2 and (" ".join([phrase3, phrase1]) == f_phrase):
 				return True
-
+			# check if present in phrasetable
 			nope = False
 			for phrase in phrases:
 				if phrase not in phrasetable:
 					nope = True
 					break
+			# check all permutations of the candidate_range-most probable f-phrases
 			if not nope:
 				f_phrases = [phrasetable[phrase] for phrase in phrases]
 				for indices in itertools.permutations([0, 1, 2]):
@@ -140,25 +176,13 @@ def find_concatenated_phrase(phrasepair, phrasetable, candidate_range):
 
 
 if __name__ == '__main__':
-	n = 10000
-	BP = extract_phrase_pairs(n=n)
-	BP2 = extract_phrase_pairs(n=n, set='heldout')
+	n = 100
+	BP = extract_phrase_table(n=n)
+	BP2 = extract_phrase_table(n=n, set='heldout')
 	pres = []
 	f = open('results'+str(n), 'w')
 	for candidate_range in xrange(1, 100):
 		pres.append(calculate_coverage(BP2, BP, candidate_range))
 		print pres
 		f.write(str(pres))
-
-
-	# pprint([(key, counter) for key, counter in BP.iteritems() if sum(counter.values()) > 100])
-	# pprint(BP)
-	res = list(open('results2.txt', 'r').readlines())
-	# res = list(open('results3.txt', 'r').readlines())
-	Y = [float(line.strip().split()[2]) for i, line in enumerate(res) if (((i-1) % 3) == 0)]
-	X = [i for i in xrange(1, len(Y)+1)]
-	plt.plot(X, Y)
-	plt.plot(X, [18.8946859903 for _ in Y])
-	# plt.plot(X, [37.0615136876 for _ in Y])
-	plt.show()
 
