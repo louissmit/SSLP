@@ -7,5 +7,5 @@ class B:
 
 	def get(self, left_word, right_word):
 		print "not implemented yet"
-		# return np.random.random_sample()
-		return 213
+		return np.random.random_sample()
+		# return 213
