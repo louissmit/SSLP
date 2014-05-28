@@ -54,8 +54,44 @@ def traverseBackpointers(sent, delta, bp, i, k):
 	else:
 		return [sent[i]]
 
+def get_german_prime(german_sent, alignments):
+	"""
+	Reordering oracle, Tromble & Eisner refer to it as german'
+
+	@param german_sent: german input sentence
+	@param alignments: dictionary with alignments to english e.g. {0: [1, 2], 1: [4,1]}
+	@return: german'
+	"""
+	indices = []
+	for g, g_word in enumerate(german_sent):
+		if g in alignments:
+			indices.append(min(alignments[g]))
+		else:
+			indices.append(0)
+	indices = np.argsort(np.array(indices), kind='mergesort')
+	g_prime = [german_sent[i] for i in indices]
+	return g_prime
+
+
 if __name__ == '__main__':
+	# testing oracle reordering
+	set = 'training'
+	english = open('../project2_data/'+set+'/p2_'+set+'.en', 'r').readline().split()
+	german = open('../project2_data/'+set+'/p2_'+set+'.nl', 'r').readline().split()
+	alfile = [a.split('-') for a in open('../project2_data/'+set+'/p2_'+set+'_symal.nlen', 'r').readline().split()]
+	alignments = {}
+	for a in alfile:
+		g_al = int(a[0])
+		if g_al not in alignments:
+			alignments[int(a[0])] = []
+		alignments[int(a[0])].append(int(a[1]))
+
+	print german
+	print get_german_prime(german, alignments)
+	print english
+
+	# testing local search
 	sent = 'beta alpha gamma zeta crap'.split()
-	b = B(sent)
+	b = B().initAlphabetically(sent)
 	delta, bp = localSearch(b, sent)
 	print traverseBackpointers(sent, delta, bp, 0, len(sent))

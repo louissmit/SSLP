@@ -3,13 +3,19 @@ from pprint import pprint
 
 
 class B:
-	def __init__(self, sent):
+	def __init__(self):
+		self.matrix = {}
+
+	def get(self, left_word, right_word):
+		# return np.random.random_sample()
+		return self.matrix[left_word][right_word]
+
+	def initAlphabetically(self, sent):
 		# alphabetic preference matrix for testing purposes
 		sorted_sent = []
 		for x in sorted(sent):
 			sorted_sent.append(x)
 		print sorted_sent
-		self.matrix = {}
 		for i, left_word in enumerate(sorted_sent):
 			if left_word not in self.matrix:
 				self.matrix[left_word] = {}
@@ -22,9 +28,7 @@ class B:
 				if left_word not in self.matrix[right_word]:
 					self.matrix[right_word][left_word] = 0
 
-		# pprint(self.matrix)
+		return self
 
-
-	def get(self, left_word, right_word):
-		# return np.random.random_sample()
-		return self.matrix[left_word][right_word]
+	def initHeuristically(self, sents, aligns):
+		return self
