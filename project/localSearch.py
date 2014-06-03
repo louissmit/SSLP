@@ -15,11 +15,11 @@ def localSearch(B, sent):
 	bp = np.zeros((n+1,n+1))
 	delta = np.zeros((n+1,n+1,n+1))
 
-	for i in xrange(0, n):
-		beta[i, i+1] = 0
-		for k in xrange(i+1, n+1):
-			delta[i, i, k] = 0
-			delta[i, k, k] = 0
+	# for i in xrange(0, n):
+	# 	beta[i, i+1] = 0
+	# 	for k in xrange(i+1, n+1):
+	# 		delta[i, i, k] = 0
+	# 		delta[i, k, k] = 0
 
 	for w in xrange(2, n+1):
 		for i in xrange(0, n-w+1):

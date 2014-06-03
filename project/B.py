@@ -30,5 +30,6 @@ class B:
 
 		return self
 
-	def initHeuristically(self, sents, aligns):
+	def create_training_set(self, sents, aligns):
+		for sent in sents:
 		return self
