@@ -2,6 +2,8 @@ from B import B
 import numpy as np
 from training import train
 from sent_utils import get_alignments, get_german_prime
+from bleu import bleu, precision
+
 import cPickle as pickle
 
 def localSearch(B, sent):
@@ -59,45 +61,50 @@ def traverseBackpointers(sent, delta, bp, i, k):
 		return [sent[i]]
 
 
-def iterate_local_search(corpus):
+def iterate_local_search(b, corpus, g_prime, n=10):
 	converged = False
 	new_score = 0.0
 	while not converged:
 		last_score = new_score
 		for i, sent in enumerate(corpus):
+			if i == n: break
 			delta, bp = localSearch(b, sent)
 			corpus[i] = traverseBackpointers(sent, delta, bp, 0, len(sent))
 
-		new_score = calculate_score(corpus)
+		new_score = calculate_score(corpus, g_prime, n)
 		converged = (last_score - new_score) < 0.1
+		print last_score# - new_score
 	return corpus
 
-def calculate_score(corpus):
-	return 22.4
+def calculate_score(corpus, g_prime, n=10):
+	res = 0
+	for i, sent in enumerate(corpus):
+		if i == n: break
+		res += bleu(g_prime[i], sent)
+	return res / n
 
 
 if __name__ == '__main__':
 	# testing oracle reordering
+	n = 10
 	set = 'training'
 	english = open('../project2_data/'+set+'/p2_'+set+'.en', 'r').readline().split()
-	german = list(open('../project2_data/'+set+'/p2_'+set+'.nl', 'r'))[22].split()
+	german = [sent.split() for sent in list(open('../project2_data/'+set+'/p2_'+set+'.nl', 'r'))][:n]
 
-	alignment = get_alignments()[0]
-
-	print german
-	print get_german_prime(german, alignment)
-	# print english
+	alignments = get_alignments()
+	g_prime = [get_german_prime(sent, alignments[i]) for i, sent in enumerate(german)]
 
 	# testing local search
 	# sent = 'beta alpha gamma zeta crap'.split()
-	sent = german
+	# sent = german[1]
+	# print sent
+	# g_sent = g_prime[1]
+	# print g_sent
+	# print precision(g_sent, sent)
 	# b = B().initAlphabetically(sent)
 	# clf, word_vecs = train(n=100)
 	# pickle.dump((clf, word_vecs), open( "model.p", "wb" ) )
 	clf, word_vecs = pickle.load(open( "model.p", "rb" ))
 
 	b = B(clf, word_vecs)
-	for i in xrange(0, 10):
-		delta, bp = localSearch(b, sent)
-		sent = traverseBackpointers(sent, delta, bp, 0, len(sent))
-		print sent
+	iterate_local_search(b, german, g_prime, n=n)
