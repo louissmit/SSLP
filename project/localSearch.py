@@ -59,6 +59,20 @@ def traverseBackpointers(sent, delta, bp, i, k):
 		return [sent[i]]
 
 
+def iterate_local_search(corpus):
+	converged = False
+	while not converged:
+		last_score = new_score
+		for i, sent in enumerate(corpus):
+			delta, bp = localSearch(b, sent)
+			corpus[i] = traverseBackpointers(sent, delta, bp, 0, len(sent))
+
+		new_score = calculate_score(corpus)
+		converged = (last_score - new_score) < 0.1
+	return corpus
+
+def calculate_score(corpus):
+	return 22.4
 
 
 if __name__ == '__main__':
