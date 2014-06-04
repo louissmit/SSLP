@@ -55,7 +55,7 @@ def train(word_vecs, n=100):
 
 
 	print (gut*1.0) / all
-	return clf, word_vecs
+	return clf
 
 # if __name__ == '__main__':
 # 	train(n=20)
