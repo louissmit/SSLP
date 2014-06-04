@@ -2,8 +2,6 @@ def ngrams(s, n):
 	return [" ".join(s[i:i + n]) for i in range(len(s) - n + 1)]
 
 def precision(gold, out):
-	print gold
-	print out
 	return float(len(set(gold) & set(out))) / float(len(set(out)))
 
 
