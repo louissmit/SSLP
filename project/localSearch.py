@@ -1,7 +1,7 @@
 from B import B
 import numpy as np
 from training import train
-from sent_utils import get_alignments, get_german_prime
+from sent_utils import get_alignments, get_german_prime, get_word_vecs
 from bleu import bleu, precision
 
 import cPickle as pickle
@@ -86,12 +86,12 @@ def calculate_score(corpus, g_prime, n=10):
 
 if __name__ == '__main__':
 	# testing oracle reordering
-	n = 10
+	n = 100
 	set = 'training'
 	english = open('../project2_data/'+set+'/p2_'+set+'.en', 'r').readline().split()
 	german = [sent.split() for sent in list(open('../project2_data/'+set+'/p2_'+set+'.nl', 'r'))][:n]
 
-	alignments = get_alignments()
+	alignments = get_alignments(n=n)
 	g_prime = [get_german_prime(sent, alignments[i]) for i, sent in enumerate(german)]
 
 	# testing local search
@@ -102,9 +102,10 @@ if __name__ == '__main__':
 	# print g_sent
 	# print precision(g_sent, sent)
 	# b = B().initAlphabetically(sent)
-	# clf, word_vecs = train(n=100)
-	# pickle.dump((clf, word_vecs), open( "model.p", "wb" ) )
-	clf, word_vecs = pickle.load(open( "model.p", "rb" ))
+	word_vecs = get_word_vecs(german)
+	clf = train(word_vecs)
+	pickle.dump(clf, open( "model.p", "wb" ) )
+	# clf = pickle.load(open( "model.p", "rb" ))
 
 	b = B(clf, word_vecs)
-	iterate_local_search(b, german, g_prime, n=n)
+	iterate_local_search(b, german, g_prime, n=10)

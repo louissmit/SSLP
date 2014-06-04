@@ -28,15 +28,13 @@ def create_training_set(sents, aligns, word_vecs):
 				Y.append(0)
 	return X, Y
 
-def train(n=100):
+def train(word_vecs, n=100):
 	set = 'training'
 	german = list(open('../project2_data/'+set+'/p2_'+set+'.nl', 'r'))[:n]
 	aligns = get_alignments(n=n)
 
 	corpus = [s.split() for s in german]
-	word_vecs = gensim.models.word2vec.Word2Vec(size=300, min_count=1, sg=0)
-	word_vecs.build_vocab(corpus*2)
-	word_vecs.train(corpus*2)
+
 	clf = SGDClassifier(loss="hinge", penalty="l2")
 	X, y = create_training_set(corpus, aligns, word_vecs)
 	clf.fit(X, y)

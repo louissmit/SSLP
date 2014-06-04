@@ -1,4 +1,7 @@
 import numpy as np
+import gensim
+import os.path
+import cPickle as pickle
 
 def get_german_prime(german_sent, alignments):
 	"""
@@ -33,3 +36,14 @@ def get_alignments(set='training', n=10):
 			alignment[int(a[0])].append(int(a[1]))
 		alignments.append(alignment)
 	return alignments
+
+def get_word_vecs(corpus, n=100):
+	file = 'word_vecs_n='+str(n)
+	if os.path.isfile(file):
+		word_vecs = pickle.load(open(file, "rb" ))
+	else:
+		word_vecs = gensim.models.word2vec.Word2Vec(size=300, min_count=1, sg=0)
+		word_vecs.build_vocab(corpus*2)
+		word_vecs.train(corpus*2)
+		pickle.dump(word_vecs, open(file, "wb" ) )
+	return word_vecs
