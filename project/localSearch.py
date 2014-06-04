@@ -1,5 +1,8 @@
 from B import B
 import numpy as np
+from training import train
+from sent_utils import get_alignments, get_german_prime
+import cPickle as pickle
 
 def localSearch(B, sent):
 	"""
@@ -26,11 +29,12 @@ def localSearch(B, sent):
 			k = i + w
 			beta[i, k] = float("-inf")
 			for j in xrange(i+1, k):
-				delta[i, j, k] = delta[i, j, k-1] + delta[i+1, j, k] - delta[i+1, j, k-1] + B.get(sent[k-1], sent[i]) - B.get(sent[i], sent[k-1])
+				delta[i, j, k] = delta[i, j, k-1] + delta[i+1, j, k] - delta[i+1, j, k-1] + B.get(sent, k-1, i) - B.get(sent, i, k-1)
 				new_beta = beta[i, j] + beta[j, k] + max(0, delta[i, j, k])
 				if new_beta > beta[i, k]:
 					beta[i, k] = new_beta
 					bp[i, k] = j
+	# print beta
 	return delta, bp
 
 
@@ -54,44 +58,31 @@ def traverseBackpointers(sent, delta, bp, i, k):
 	else:
 		return [sent[i]]
 
-def get_german_prime(german_sent, alignments):
-	"""
-	Reordering oracle, Tromble & Eisner refer to it as german'
 
-	@param german_sent: german input sentence
-	@param alignments: dictionary with alignments to english e.g. {0: [1, 2], 1: [4,1]}
-	@return: german'
-	"""
-	indices = []
-	for g, g_word in enumerate(german_sent):
-		if g in alignments:
-			indices.append(min(alignments[g]))
-		else:
-			indices.append(0)
-	indices = np.argsort(np.array(indices), kind='mergesort')
-	g_prime = [german_sent[i] for i in indices]
-	return g_prime
 
 
 if __name__ == '__main__':
 	# testing oracle reordering
 	set = 'training'
 	english = open('../project2_data/'+set+'/p2_'+set+'.en', 'r').readline().split()
-	german = open('../project2_data/'+set+'/p2_'+set+'.nl', 'r').readline().split()
-	alfile = [a.split('-') for a in open('../project2_data/'+set+'/p2_'+set+'_symal.nlen', 'r').readline().split()]
-	alignments = {}
-	for a in alfile:
-		g_al = int(a[0])
-		if g_al not in alignments:
-			alignments[int(a[0])] = []
-		alignments[int(a[0])].append(int(a[1]))
+	german = list(open('../project2_data/'+set+'/p2_'+set+'.nl', 'r'))[22].split()
+
+	alignment = get_alignments()[0]
 
 	print german
-	print get_german_prime(german, alignments)
-	print english
+	print get_german_prime(german, alignment)
+	# print english
 
 	# testing local search
-	sent = 'beta alpha gamma zeta crap'.split()
-	b = B().initAlphabetically(sent)
-	delta, bp = localSearch(b, sent)
-	print traverseBackpointers(sent, delta, bp, 0, len(sent))
+	# sent = 'beta alpha gamma zeta crap'.split()
+	sent = german
+	# b = B().initAlphabetically(sent)
+	# clf, word_vecs = train(n=100)
+	# pickle.dump((clf, word_vecs), open( "model.p", "wb" ) )
+	clf, word_vecs = pickle.load(open( "model.p", "rb" ))
+
+	b = B(clf, word_vecs)
+	for i in xrange(0, 10):
+		delta, bp = localSearch(b, sent)
+		sent = traverseBackpointers(sent, delta, bp, 0, len(sent))
+		print sent

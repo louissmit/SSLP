@@ -1,14 +1,19 @@
 import numpy as np
 from pprint import pprint
-
+from training import features
 
 class B:
-	def __init__(self):
+	def __init__(self, clf, word_vecs):
 		self.matrix = {}
+		self.clf = clf
+		self.word_vecs = word_vecs
 
-	def get(self, left_word, right_word):
+	def get(self, sent, left_word, right_word):
 		# return np.random.random_sample()
-		return self.matrix[left_word][right_word]
+		# return self.matrix[left_word][right_word]
+		res = self.clf.predict(features(self.word_vecs, sent, left_word, right_word))
+		return res
+
 
 	def initAlphabetically(self, sent):
 		# alphabetic preference matrix for testing purposes
@@ -30,6 +35,4 @@ class B:
 
 		return self
 
-	def create_training_set(self, sents, aligns):
-		for sent in sents:
-		return self
+
