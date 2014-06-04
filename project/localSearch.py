@@ -77,10 +77,11 @@ def iterate_local_search(b, corpus, g_prime, n=10):
 	return corpus
 
 def calculate_score(corpus, g_prime, n=10):
-	res = 0
+	res = 0.0
 	for i, sent in enumerate(corpus):
 		if i == n: break
 		res += bleu(g_prime[i], sent)
+	print res, n
 	return res / n
 
 
