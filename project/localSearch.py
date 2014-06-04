@@ -61,6 +61,7 @@ def traverseBackpointers(sent, delta, bp, i, k):
 
 def iterate_local_search(corpus):
 	converged = False
+	new_score = 0.0
 	while not converged:
 		last_score = new_score
 		for i, sent in enumerate(corpus):
