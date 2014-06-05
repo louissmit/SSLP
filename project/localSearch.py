@@ -61,38 +61,37 @@ def traverseBackpointers(sent, delta, bp, i, k):
 		return [sent[i]]
 
 
-def iterate_local_search(b, corpus, g_prime, n=10):
+def iterate_local_search(b, test_corpus, g_prime):
 	converged = False
 	new_score = 0.0
 	while not converged:
 		last_score = new_score
-		for i, sent in enumerate(corpus):
-			if i == n: break
+		for i, sent in enumerate(test_corpus):
 			print sent
 			delta, bp = localSearch(b, sent)
-			corpus[i] = traverseBackpointers(sent, delta, bp, 0, len(sent))
+			test_corpus[i] = traverseBackpointers(sent, delta, bp, 0, len(sent))
 
-		new_score = calculate_score(corpus, g_prime, n)
+		new_score = calculate_score(test_corpus, g_prime)
 		print new_score
 		converged = (new_score - last_score) < 0.001
-	return corpus
+	return test_corpus
 
-def calculate_score(corpus, g_prime, n=10):
+def calculate_score(test_corpus, g_prime):
 	res = 0.0
-	for i, sent in enumerate(corpus):
-		if i == n: break
+	for i, sent in enumerate(test_corpus):
 		res += bleu(g_prime[i], sent)
-	return res / n
+	return res / train_set_size
 
 
 if __name__ == '__main__':
 	# testing oracle reordering
-	n = 1000
+	train_set_size = 1000
+	test_set_size = 10
 	set = 'training'
 	english = open('../project2_data/'+set+'/p2_'+set+'.en', 'r').readline().split()
-	german = [sent.split() for sent in list(open('../project2_data/'+set+'/p2_'+set+'.nl', 'r'))][:n]
+	german = [sent.split() for sent in list(open('../project2_data/'+set+'/p2_'+set+'.nl', 'r'))][:train_set_size]
 
-	alignments = get_alignments(n=n)
+	alignments = get_alignments(n=train_set_size)
 	g_prime = [get_german_prime(sent, alignments[i]) for i, sent in enumerate(german)]
 
 	# testing local search
@@ -103,11 +102,12 @@ if __name__ == '__main__':
 	# print g_sent
 	# print precision(g_sent, sent)
 	# b = B().initAlphabetically(sent)
-	word_vecs = get_word_vecs(german, n=n)
-	clf = train(word_vecs, n=n)
+	word_vecs = get_word_vecs(german)
+	clf = train(word_vecs)
 
 
 	b = B(clf, word_vecs)
-	iterate_local_search(b, german, g_prime, n=1)
+	test_corpus = [sent for sent in german if len(sent) < 8][:test_set_size]
+	iterate_local_search(b, german, g_prime)
 
 # 1000 = 15.3

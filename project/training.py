@@ -30,12 +30,11 @@ def create_training_set(sents, aligns, word_vecs):
 				Y.append(0)
 	return X, Y
 
-def train(word_vecs, n=100):
-	set = 'training'
-	german = list(open('../project2_data/'+set+'/p2_'+set+'.nl', 'r'))[:n]
+def train(word_vecs, corpus):
+	n = len(corpus)
 	aligns = get_alignments(n=n)
 
-	corpus = [s.split() for s in german]
+	corpus = [s.split() for s in corpus]
 	filename = 'model_n='+str(n)
 	if not os.path.isfile(filename):
 		clf = SGDClassifier(loss="hinge", penalty="l2")

@@ -37,7 +37,8 @@ def get_alignments(set='training', n=10):
 		alignments.append(alignment)
 	return alignments
 
-def get_word_vecs(corpus, n=100):
+def get_word_vecs(corpus):
+	n = len(corpus)
 	file = 'word_vecs_n='+str(n)
 	if os.path.isfile(file):
 		print "Loading word vectors.."
