@@ -13,11 +13,11 @@ class B:
 
 	def get(self, sent, left_word, right_word):
 		# return np.random.random_sample()
-		self.total += 1
-		oracle = self.matrix[sent[left_word]][sent[right_word]]
+		# self.total += 1
+		# oracle = self.matrix[sent[left_word]][sent[right_word]]
 		res = self.clf.predict(features(self.word_vecs, sent, left_word, right_word))[0]
-		if oracle == res:
-			self.correct += 1
+		# if oracle == res:
+		# 	self.correct += 1
 		return res
 
 

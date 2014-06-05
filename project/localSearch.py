@@ -89,7 +89,9 @@ if __name__ == '__main__':
 	test_set_size = 10
 	set = 'training'
 	english = [sent.split() for sent in list(open('../project2_data/'+set+'/p2_'+set+'.en', 'r'))][:train_set_size]
-	german = [sent.split() for sent in list(open('../project2_data/'+set+'/p2_'+set+'.nl', 'r'))][:train_set_size]
+	german = [sent.split() for sent in list(open('../project2_data/'+set+'/p2_'+set+'.nl', 'r'))]
+	word_vecs = get_word_vecs(german)
+	german = german[:train_set_size]
 	alfile = [al.split() for al in list(open('../project2_data/'+set+'/p2_'+set+'_symal.nlen', 'r'))][:train_set_size]
 
 
@@ -101,7 +103,6 @@ if __name__ == '__main__':
 	# print g_sent
 	# print precision(g_sent, sent)
 	aligns = get_alignments(alfile)
-	word_vecs = get_word_vecs([sent.split() for sent in list(open('../project2_data/'+set+'/p2_'+set+'.nl', 'r'))], n=99999)
 	g_prime = [get_german_prime(sent, aligns[i]) for i, sent in enumerate(german)]
 	X, Y = create_training_set(g_prime, word_vecs)
 	clf = train(X, Y, train_set_size)
@@ -117,17 +118,17 @@ if __name__ == '__main__':
 	alignments = get_alignments(test_corpus_als)
 	g_prime = [get_german_prime(sent, alignments[i]) for i, sent in enumerate(test_corpus)]
 
-	for sent_i in xrange(0, 10):
-		sent = test_corpus[sent_i]
-		print sent
-		print test_corpus_en[sent_i]
-		prime_sent = g_prime[sent_i]
-		print prime_sent
-		b = b.initAlphabetically(sent, prime_sent)
-		delta, bp = localSearch(b, sent)
-		print traverseBackpointers(sent, delta, bp, 0, len(sent))
-	print b.correct*1.0 / b.total
+	# for sent_i in xrange(0, 10):
+	# 	sent = test_corpus[sent_i]
+	# 	print sent
+	# 	print test_corpus_en[sent_i]
+	# 	prime_sent = g_prime[sent_i]
+	# 	print prime_sent
+	# 	b = b.initAlphabetically(sent, prime_sent)
+	# 	delta, bp = localSearch(b, sent)
+	# 	print traverseBackpointers(sent, delta, bp, 0, len(sent))
+	# print b.correct*1.0 / b.total
 
-	# iterate_local_search(b, test_corpus, g_prime)
+	iterate_local_search(b, test_corpus, g_prime)
 
 # 1000 = 15.3
