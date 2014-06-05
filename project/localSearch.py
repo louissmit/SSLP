@@ -68,12 +68,13 @@ def iterate_local_search(b, corpus, g_prime, n=10):
 		last_score = new_score
 		for i, sent in enumerate(corpus):
 			if i == n: break
+			print sent
 			delta, bp = localSearch(b, sent)
 			corpus[i] = traverseBackpointers(sent, delta, bp, 0, len(sent))
 
 		new_score = calculate_score(corpus, g_prime, n)
-		converged = (new_score - last_score) < 0.1
 		print new_score
+		converged = (new_score - last_score) < 0.001
 	return corpus
 
 def calculate_score(corpus, g_prime, n=10):
@@ -86,7 +87,7 @@ def calculate_score(corpus, g_prime, n=10):
 
 if __name__ == '__main__':
 	# testing oracle reordering
-	n = 10000
+	n = 1000
 	set = 'training'
 	english = open('../project2_data/'+set+'/p2_'+set+'.en', 'r').readline().split()
 	german = [sent.split() for sent in list(open('../project2_data/'+set+'/p2_'+set+'.nl', 'r'))][:n]
@@ -102,12 +103,11 @@ if __name__ == '__main__':
 	# print g_sent
 	# print precision(g_sent, sent)
 	# b = B().initAlphabetically(sent)
-	word_vecs = get_word_vecs(german)
-	clf = train(word_vecs)
-	pickle.dump(clf, open( "model.p", "wb" ) )
-	# clf = pickle.load(open( "model.p", "rb" ))
+	word_vecs = get_word_vecs(german, n=n)
+	clf = train(word_vecs, n=n)
 
-	b = B(clf, word_vecs)
-	iterate_local_search(b, german, g_prime, n=100)
+
+	# b = B(clf, word_vecs)
+	# iterate_local_search(b, german, g_prime, n=1)
 
 # 1000 = 15.3
