@@ -101,7 +101,7 @@ if __name__ == '__main__':
 	# print g_sent
 	# print precision(g_sent, sent)
 	aligns = get_alignments(alfile)
-	word_vecs = get_word_vecs(german, n=99999)
+	word_vecs = get_word_vecs([sent.split() for sent in list(open('../project2_data/'+set+'/p2_'+set+'.nl', 'r'))], n=99999)
 	g_prime = [get_german_prime(sent, aligns[i]) for i, sent in enumerate(german)]
 	X, Y = create_training_set(g_prime, word_vecs)
 	clf = train(X, Y, train_set_size)
