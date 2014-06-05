@@ -105,8 +105,8 @@ if __name__ == '__main__':
 	g_prime = [get_german_prime(sent, aligns[i]) for i, sent in enumerate(german)]
 	X, Y = create_training_set(g_prime, word_vecs)
 	clf = train(X, Y, train_set_size)
-	print len(X)
-	test_classifier(clf, X[:10])
+	# print len(X)
+	# test_classifier(clf, X[:3000], Y[:3000])
 
 
 	b = B(clf, word_vecs)
@@ -117,15 +117,16 @@ if __name__ == '__main__':
 	alignments = get_alignments(test_corpus_als)
 	g_prime = [get_german_prime(sent, alignments[i]) for i, sent in enumerate(test_corpus)]
 
-	# sent_i = 1
-	#
-	# sent = test_corpus[sent_i]
-	# print sent
-	# print test_corpus_en[sent_i]
-	# prime_sent = g_prime[sent_i]
-	# b = B(None, None).initAlphabetically(sent, prime_sent)
-	# delta, bp = localSearch(b, sent)
-	# print traverseBackpointers(sent, delta, bp, 0, len(sent))
+	for sent_i in xrange(0, 10):
+		sent = test_corpus[sent_i]
+		print sent
+		print test_corpus_en[sent_i]
+		prime_sent = g_prime[sent_i]
+		print prime_sent
+		b = b.initAlphabetically(sent, prime_sent)
+		delta, bp = localSearch(b, sent)
+		print traverseBackpointers(sent, delta, bp, 0, len(sent))
+	print b.correct*1.0 / b.total
 
 	# iterate_local_search(b, test_corpus, g_prime)
 

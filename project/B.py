@@ -8,11 +8,16 @@ class B:
 		self.matrix = {}
 		self.clf = clf
 		self.word_vecs = word_vecs
+		self.total = 0.0
+		self.correct = 0.0
 
 	def get(self, sent, left_word, right_word):
 		# return np.random.random_sample()
-		# return self.matrix[sent[left_word]][sent[right_word]]
-		res = self.clf.predict(features(self.word_vecs, sent, left_word, right_word))
+		self.total += 1
+		oracle = self.matrix[sent[left_word]][sent[right_word]]
+		res = self.clf.predict(features(self.word_vecs, sent, left_word, right_word))[0]
+		if oracle == res:
+			self.correct += 1
 		return res
 
 
@@ -22,7 +27,6 @@ class B:
 		# for x in sorted(sent):
 		# 	sorted_sent.append(x)
 		sorted_sent = g_prime
-		print sorted_sent
 		for i, left_word in enumerate(sorted_sent):
 			if left_word not in self.matrix:
 				self.matrix[left_word] = {}
