@@ -91,8 +91,6 @@ if __name__ == '__main__':
 	english = open('../project2_data/'+set+'/p2_'+set+'.en', 'r').readline().split()
 	german = [sent.split() for sent in list(open('../project2_data/'+set+'/p2_'+set+'.nl', 'r'))][:train_set_size]
 
-	alignments = get_alignments(n=train_set_size)
-	g_prime = [get_german_prime(sent, alignments[i]) for i, sent in enumerate(german)]
 
 	# testing local search
 	# sent = 'beta alpha gamma zeta crap'.split()
@@ -108,6 +106,9 @@ if __name__ == '__main__':
 
 	b = B(clf, word_vecs)
 	test_corpus = [sent for sent in german if len(sent) < 8][:test_set_size]
-	iterate_local_search(b, german, g_prime)
+	alignments = get_alignments(n=test_set_size)
+	g_prime = [get_german_prime(sent, alignments[i]) for i, sent in enumerate(test_corpus)]
+
+	iterate_local_search(b, test_corpus, g_prime)
 
 # 1000 = 15.3
