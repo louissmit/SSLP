@@ -85,12 +85,13 @@ def calculate_score(test_corpus, g_prime):
 
 if __name__ == '__main__':
 	# testing oracle reordering
-	train_set_size = 1000
-	test_set_size = 100
+	train_set_size = 100
+	test_set_size = 10
 	set = 'training'
 	english = [sent.split() for sent in list(open('../project2_data/'+set+'/p2_'+set+'.en', 'r'))][:train_set_size]
 	german = [sent.split() for sent in list(open('../project2_data/'+set+'/p2_'+set+'.nl', 'r'))]
 	word_vecs = get_word_vecs(german)
+	german_test = german[train_set_size:train_set_size+test_set_size]
 	german = german[:train_set_size]
 	alfile = [al.split() for al in list(open('../project2_data/'+set+'/p2_'+set+'_symal.nlen', 'r'))][:train_set_size]
 
@@ -104,10 +105,11 @@ if __name__ == '__main__':
 	# print precision(g_sent, sent)
 	aligns = get_alignments(alfile)
 	g_prime = [get_german_prime(sent, aligns[i]) for i, sent in enumerate(german)]
-	# X, Y = create_training_set(g_prime, word_vecs)
 	clf = train(word_vecs, g_prime, train_set_size)
 	# print len(X)
-	# test_classifier(clf, X[:3000], Y[:3000])
+	g_prime_test = [get_german_prime(sent, aligns[i]) for i, sent in enumerate(german_test)]
+	X, Y = create_training_set(g_prime_test, word_vecs)
+	test_classifier(clf, X, Y)
 
 
 	b = B(clf, word_vecs)
