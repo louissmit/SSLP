@@ -75,10 +75,10 @@ def iterate_local_search(b, test_corpus, g_prime):
 
 		new_score = calculate_score(test_corpus, g_prime)
 		print new_score
-		if (new_score - last_score) < 0:
-			not_improved += 1
-		else:
+		if (new_score - last_score) > 0:
 			not_improved = 0
+		else:
+			not_improved += 1
 	return test_corpus
 
 def calculate_score(test_corpus, g_prime):
