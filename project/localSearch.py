@@ -36,7 +36,7 @@ def localSearch(B, sent):
 				if new_beta > beta[i, k]:
 					beta[i, k] = new_beta
 					bp[i, k] = j
-	print beta
+	print beta.max()
 	return delta, bp
 
 
@@ -103,7 +103,7 @@ if __name__ == '__main__':
 	# print precision(g_sent, sent)
 	# b = B().initAlphabetically(sent)
 	word_vecs = get_word_vecs(german)
-	clf = train(word_vecs)
+	clf = train(word_vecs, german)
 
 
 	b = B(clf, word_vecs)
