@@ -104,8 +104,8 @@ if __name__ == '__main__':
 	# print precision(g_sent, sent)
 	aligns = get_alignments(alfile)
 	g_prime = [get_german_prime(sent, aligns[i]) for i, sent in enumerate(german)]
-	X, Y = create_training_set(g_prime, word_vecs)
-	clf = train(X, Y, train_set_size)
+	# X, Y = create_training_set(g_prime, word_vecs)
+	clf = train(word_vecs, g_prime, train_set_size)
 	# print len(X)
 	# test_classifier(clf, X[:3000], Y[:3000])
 

@@ -48,14 +48,25 @@ def create_training_set(g_primes, word_vecs):
 		Y = files['arr_1']
 	return X, Y
 
-def train(X, Y, n):
+def train(word_vecs, g_primes, n):
 
 	filename = 'model_n='+str(n)
 	if not os.path.isfile(filename):
 	# if True:
 		print "Training classifier.."
 		clf = SGDClassifier(loss="hinge", penalty="l2")
-		clf.fit(X, Y)
+		for g_prime in g_primes:
+			for i in xrange(0, len(g_prime)):
+				for j in xrange(i+1, len(g_prime)):
+					X = []
+					Y = []
+					true_vector = features(word_vecs, g_prime, i, j)
+					X.append(true_vector)
+					Y.append(1)
+					false_vector = features(word_vecs, g_prime, j, i)
+					X.append(false_vector)
+					Y.append(0)
+					clf.partial_fit(X, Y)
 		pickle.dump(clf, open(filename, "wb"))
 
 	else:
