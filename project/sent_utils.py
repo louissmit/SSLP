@@ -40,8 +40,10 @@ def get_alignments(set='training', n=10):
 def get_word_vecs(corpus, n=100):
 	file = 'word_vecs_n='+str(n)
 	if os.path.isfile(file):
+		print "Loading word vectors.."
 		word_vecs = pickle.load(open(file, "rb" ))
 	else:
+		print "Training word vectors.."
 		word_vecs = gensim.models.word2vec.Word2Vec(size=300, min_count=1, sg=0)
 		word_vecs.build_vocab(corpus*2)
 		word_vecs.train(corpus*2)

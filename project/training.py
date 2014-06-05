@@ -33,6 +33,7 @@ def create_training_set(sents, aligns, word_vecs):
 def train(word_vecs, n=100):
 	filename = 'model_n='+str(n)
 	if not os.path.isfile(filename):
+		print "Training classifier.."
 		set = 'training'
 		german = list(open('../project2_data/'+set+'/p2_'+set+'.nl', 'r'))[:n]
 		aligns = get_alignments(n=n)
@@ -62,9 +63,15 @@ def train(word_vecs, n=100):
 
 		print (gut*1.0) / all
 	else:
+		print "Loading classifier.."
 		clf = pickle.load(open(filename, "rb" ))
 
 	return clf
+
+
+def train_nn():
+	return 'asf'
+
 
 if __name__ == '__main__':
 	train(n=20)
