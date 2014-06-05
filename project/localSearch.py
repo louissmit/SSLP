@@ -85,11 +85,12 @@ def calculate_score(test_corpus, g_prime):
 
 if __name__ == '__main__':
 	# testing oracle reordering
-	train_set_size = 1000
+	train_set_size = 100
 	test_set_size = 10
 	set = 'training'
-	english = open('../project2_data/'+set+'/p2_'+set+'.en', 'r').readline().split()
+	english = [sent.split() for sent in list(open('../project2_data/'+set+'/p2_'+set+'.en', 'r'))][:train_set_size]
 	german = [sent.split() for sent in list(open('../project2_data/'+set+'/p2_'+set+'.nl', 'r'))][:train_set_size]
+	alfile = [al.split() for al in list(open('../project2_data/'+set+'/p2_'+set+'_symal.nlen', 'r'))][:train_set_size]
 
 
 	# testing local search
@@ -99,15 +100,29 @@ if __name__ == '__main__':
 	# g_sent = g_prime[1]
 	# print g_sent
 	# print precision(g_sent, sent)
-	# b = B().initAlphabetically(sent)
+	aligns = get_alignments(alfile)
 	word_vecs = get_word_vecs(german)
-	clf = train(word_vecs, german)
+	g_prime = [get_german_prime(sent, aligns[i]) for i, sent in enumerate(german)]
+	clf = train(word_vecs, german, g_prime)
 
 
 	b = B(clf, word_vecs)
-	test_corpus = [sent for sent in german if len(sent) < 8][:test_set_size]
-	alignments = get_alignments(n=test_set_size)
+	test_corpus_indices = [i for i, sent in enumerate(german) if len(sent) < 10][:test_set_size]
+	test_corpus = [german[i] for i in test_corpus_indices]
+	test_corpus_en = [english[i] for i in test_corpus_indices]
+	test_corpus_als = [alfile[i] for i in test_corpus_indices]
+	alignments = get_alignments(test_corpus_als)
 	g_prime = [get_german_prime(sent, alignments[i]) for i, sent in enumerate(test_corpus)]
+
+	# sent_i = 1
+	#
+	# sent = test_corpus[sent_i]
+	# print sent
+	# print test_corpus_en[sent_i]
+	# prime_sent = g_prime[sent_i]
+	# b = B(None, None).initAlphabetically(sent, prime_sent)
+	# delta, bp = localSearch(b, sent)
+	# print traverseBackpointers(sent, delta, bp, 0, len(sent))
 
 	iterate_local_search(b, test_corpus, g_prime)
 

@@ -22,11 +22,9 @@ def get_german_prime(german_sent, alignments):
 	return g_prime
 
 
-def get_alignments(set='training', n=10):
-	alfile = [al.split() for al in list(open('../project2_data/'+set+'/p2_'+set+'_symal.nlen', 'r'))]
+def get_alignments(raw_aligns):
 	alignments = []
-	for i, als in enumerate(alfile):
-		if i == n: break
+	for i, als in enumerate(raw_aligns):
 		al = [a.split('-') for a in als]
 		alignment = {}
 		for a in al:

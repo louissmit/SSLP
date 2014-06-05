@@ -1,5 +1,6 @@
 import numpy as np
 from pprint import pprint
+from sent_utils import get_german_prime
 from training import features
 
 class B:
@@ -10,16 +11,17 @@ class B:
 
 	def get(self, sent, left_word, right_word):
 		# return np.random.random_sample()
-		# return self.matrix[left_word][right_word]
+		# return self.matrix[sent[left_word]][sent[right_word]]
 		res = self.clf.predict(features(self.word_vecs, sent, left_word, right_word))
 		return res
 
 
-	def initAlphabetically(self, sent):
+	def initAlphabetically(self, sent, g_prime):
 		# alphabetic preference matrix for testing purposes
-		sorted_sent = []
-		for x in sorted(sent):
-			sorted_sent.append(x)
+		# sorted_sent = []
+		# for x in sorted(sent):
+		# 	sorted_sent.append(x)
+		sorted_sent = g_prime
 		print sorted_sent
 		for i, left_word in enumerate(sorted_sent):
 			if left_word not in self.matrix:

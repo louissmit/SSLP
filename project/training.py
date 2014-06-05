@@ -18,27 +18,35 @@ def features(model, sent, left, right):
 	return np.concatenate(conc)
 
 
-def create_training_set(sents, aligns, word_vecs):
+def create_training_set(g_primes, word_vecs):
 	X = []
 	Y = []
-	for w, sent in enumerate(sents):
-		for i in xrange(0, len(sent)):
-			for j in xrange(i, len(sent)):
-				X.append(features(word_vecs, get_german_prime(sent, aligns[w]), i, j))
-				Y.append(1)
-				X.append(features(word_vecs, sent, j, i))
-				Y.append(0)
+	n = len(g_primes)
+	filename = 'trainingset_n='+str(n)
+	if not os.path.isfile(filename):
+		for w, sent in enumerate(g_primes):
+			for i in xrange(0, len(sent)):
+				for j in xrange(i+1, len(sent)):
+					X.append(features(word_vecs, g_primes[w], i, j))
+					Y.append(1)
+					X.append(features(word_vecs, g_primes[w], j, i))
+					Y.append(0)
+
+		pickle.dump((X, Y), open(filename, "wb"))
+	else:
+		X, Y = pickle.load(open(filename, "rb" ))
+
 	return X, Y
 
-def train(word_vecs, corpus):
+def train(word_vecs, corpus, g_primes):
 	n = len(corpus)
-	aligns = get_alignments(n=n)
 
 	filename = 'model_n='+str(n)
 	if not os.path.isfile(filename):
+	# if True:
 		clf = SGDClassifier(loss="hinge", penalty="l2")
 		print "Creating training set.."
-		X, y = create_training_set(corpus, aligns, word_vecs)
+		X, y = create_training_set(g_primes, word_vecs)
 		print "Training classifier.."
 		clf.fit(X, y)
 		pickle.dump(clf, open(filename, "wb"))
