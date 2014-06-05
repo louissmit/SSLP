@@ -36,7 +36,7 @@ def localSearch(B, sent):
 				if new_beta > beta[i, k]:
 					beta[i, k] = new_beta
 					bp[i, k] = j
-	# print beta
+	print beta
 	return delta, bp
 
 
@@ -107,7 +107,7 @@ if __name__ == '__main__':
 	clf = train(word_vecs, n=n)
 
 
-	# b = B(clf, word_vecs)
-	# iterate_local_search(b, german, g_prime, n=1)
+	b = B(clf, word_vecs)
+	iterate_local_search(b, german, g_prime, n=1)
 
 # 1000 = 15.3

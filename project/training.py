@@ -49,24 +49,24 @@ def train(word_vecs, n=100):
 	else:
 		print "Loading classifier.."
 		clf = pickle.load(open(filename, "rb" ))
-	print "Testing.."
-	gut = 0
-	all = 0
-	for x in xrange(0, 100):
-		test = get_german_prime(corpus[x], aligns[x])
-		for i in xrange(0, len(test)):
-			for j in xrange(i, len(test)):
-				pred = clf.predict(features(word_vecs, test, i, j))
-				if pred == 1:
-					gut+=1;
-				all+=1;
-				pred = clf.predict(features(word_vecs, test, j, i))
-				if pred == 0:
-					gut+=1;
-				all+=1;
-
-
-	print (gut*1.0) / all
+	# print "Testing.."
+	# gut = 0
+	# all = 0
+	# for x in xrange(0, 100):
+	# 	test = get_german_prime(corpus[x], aligns[x])
+	# 	for i in xrange(0, len(test)):
+	# 		for j in xrange(i, len(test)):
+	# 			pred = clf.predict(features(word_vecs, test, i, j))
+	# 			if pred == 1:
+	# 				gut+=1;
+	# 			all+=1;
+	# 			pred = clf.predict(features(word_vecs, test, j, i))
+	# 			if pred == 0:
+	# 				gut+=1;
+	# 			all+=1;
+	#
+	#
+	# print (gut*1.0) / all
 
 	return clf
 
