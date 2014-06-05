@@ -1,6 +1,6 @@
 from B import B
 import numpy as np
-from training import train
+from training import train, test_classifier, create_training_set
 from sent_utils import get_alignments, get_german_prime, get_word_vecs
 from bleu import bleu, precision
 
@@ -103,7 +103,10 @@ if __name__ == '__main__':
 	aligns = get_alignments(alfile)
 	word_vecs = get_word_vecs(german)
 	g_prime = [get_german_prime(sent, aligns[i]) for i, sent in enumerate(german)]
-	clf = train(word_vecs, german, g_prime)
+	X, Y = create_training_set(g_prime, word_vecs)
+	clf = train(X, Y, train_set_size)
+	print len(X)
+	test_classifier(clf, X[:10])
 
 
 	b = B(clf, word_vecs)
@@ -124,6 +127,6 @@ if __name__ == '__main__':
 	# delta, bp = localSearch(b, sent)
 	# print traverseBackpointers(sent, delta, bp, 0, len(sent))
 
-	iterate_local_search(b, test_corpus, g_prime)
+	# iterate_local_search(b, test_corpus, g_prime)
 
 # 1000 = 15.3

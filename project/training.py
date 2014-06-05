@@ -26,6 +26,7 @@ def create_training_set(g_primes, word_vecs):
 	filename = 'trainingset_n='+str(n)
 	if not os.path.isfile(filename):
 	# if True:
+		print "Creating training set.."
 		for g_prime in g_primes:
 			for i in xrange(0, len(g_prime)):
 				for j in xrange(i+1, len(g_prime)):
@@ -38,54 +39,43 @@ def create_training_set(g_primes, word_vecs):
 
 		pickle.dump((X, Y), open(filename, "wb"))
 	else:
-		X, Y = pickle.load(open(filename, "rb" ))
-
+		print "Loading training set.."
+		X, Y = pickle.load(open(filename, "rb"))
+	print 'asdfasdf'
 	return X, Y
 
-def train(word_vecs, corpus, g_primes):
-	n = len(corpus)
+def train(X, Y, n):
 
 	filename = 'model_n='+str(n)
 	if not os.path.isfile(filename):
 	# if True:
-		clf = SGDClassifier(loss="hinge", penalty="l2")
-		print "Creating training set.."
-		X, y = create_training_set(g_primes, word_vecs)
 		print "Training classifier.."
-		clf.fit(X, y)
+		clf = SGDClassifier(loss="hinge", penalty="l2")
+		clf.fit(X, Y)
 		pickle.dump(clf, open(filename, "wb"))
-
 
 	else:
 		print "Loading classifier.."
 		clf = pickle.load(open(filename, "rb" ))
-	print "Testing.."
-	gut = 0
-	all = 0
-	for x in xrange(0, 10):
-		test = g_primes[x]
-		for i in xrange(0, len(test)):
-			for j in xrange(i, len(test)):
-				pred = clf.predict(features(word_vecs, test, i, j))
-				if pred == 1:
-					gut+=1;
-				all+=1;
-				pred = clf.predict(features(word_vecs, test, j, i))
-				if pred == 0:
-					gut+=1;
-				all+=1;
-
-
-	print (gut*1.0) / all
 
 	return clf
 
 
-def train_nn():
-	return 'asf'
+def test_classifier(clf, test_set):
+	print "Testing.."
+	gut = 0
+	all = 0
+	for test_sent in test_set:
+		pred = clf.predict(test_sent)
+		if pred == 1:
+			gut+=1;
+		all+=1;
+		pred = clf.predict(test_sent)
+		if pred == 0:
+			gut+=1;
+		all+=1;
+	print (gut*1.0) / all
 
 
-if __name__ == '__main__':
-	train(n=20)
 
 
