@@ -33,7 +33,6 @@ def create_training_set(sents, aligns, word_vecs):
 def train(word_vecs, n=100):
 	filename = 'model_n='+str(n)
 	if not os.path.isfile(filename):
-		print "Training classifier.."
 		set = 'training'
 		german = list(open('../project2_data/'+set+'/p2_'+set+'.nl', 'r'))[:n]
 		aligns = get_alignments(n=n)
@@ -41,10 +40,13 @@ def train(word_vecs, n=100):
 		corpus = [s.split() for s in german]
 
 		clf = SGDClassifier(loss="hinge", penalty="l2")
+		print "Creating training set.."
 		X, y = create_training_set(corpus, aligns, word_vecs)
+		print "Training classifier.."
 		clf.fit(X, y)
 		pickle.dump(clf, open(filename, "wb"))
 
+		print "Testing.."
 		gut = 0
 		all = 0
 		for x in xrange(0, 100):
