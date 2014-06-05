@@ -34,7 +34,6 @@ def train(word_vecs, corpus):
 	n = len(corpus)
 	aligns = get_alignments(n=n)
 
-	corpus = [s.split() for s in corpus]
 	filename = 'model_n='+str(n)
 	if not os.path.isfile(filename):
 		clf = SGDClassifier(loss="hinge", penalty="l2")
