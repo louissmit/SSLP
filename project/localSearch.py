@@ -36,7 +36,6 @@ def localSearch(B, sent):
 				if new_beta > beta[i, k]:
 					beta[i, k] = new_beta
 					bp[i, k] = j
-	print beta.max()
 	return delta, bp
 
 
@@ -67,9 +66,10 @@ def iterate_local_search(b, test_corpus, g_prime):
 	while not converged:
 		last_score = new_score
 		for i, sent in enumerate(test_corpus):
-			print sent
+			print 'input:', sent
 			delta, bp = localSearch(b, sent)
 			test_corpus[i] = traverseBackpointers(sent, delta, bp, 0, len(sent))
+			print 'result:', test_corpus[i]
 
 		new_score = calculate_score(test_corpus, g_prime)
 		print new_score
@@ -85,8 +85,8 @@ def calculate_score(test_corpus, g_prime):
 
 if __name__ == '__main__':
 	# testing oracle reordering
-	train_set_size = 100
-	test_set_size = 10
+	train_set_size = 1000
+	test_set_size = 100
 	set = 'training'
 	english = [sent.split() for sent in list(open('../project2_data/'+set+'/p2_'+set+'.en', 'r'))][:train_set_size]
 	german = [sent.split() for sent in list(open('../project2_data/'+set+'/p2_'+set+'.nl', 'r'))]
