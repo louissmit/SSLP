@@ -36,6 +36,7 @@ def localSearch(B, sent):
 				if new_beta > beta[i, k]:
 					beta[i, k] = new_beta
 					bp[i, k] = j
+	print beta.max()
 	return delta, bp
 
 
@@ -85,7 +86,7 @@ def calculate_score(test_corpus, g_prime):
 
 if __name__ == '__main__':
 	# testing oracle reordering
-	train_set_size = 100
+	train_set_size = 1000
 	test_set_size = 10
 	set = 'training'
 	english = [sent.split() for sent in list(open('../project2_data/'+set+'/p2_'+set+'.en', 'r'))][:train_set_size]
@@ -96,13 +97,6 @@ if __name__ == '__main__':
 	alfile = [al.split() for al in list(open('../project2_data/'+set+'/p2_'+set+'_symal.nlen', 'r'))][:train_set_size]
 
 
-	# testing local search
-	# sent = 'beta alpha gamma zeta crap'.split()
-	# sent = german[1]
-	# print sent
-	# g_sent = g_prime[1]
-	# print g_sent
-	# print precision(g_sent, sent)
 	aligns = get_alignments(alfile)
 	g_prime = [get_german_prime(sent, aligns[i]) for i, sent in enumerate(german)]
 	clf = train(word_vecs, g_prime, train_set_size)
@@ -113,7 +107,7 @@ if __name__ == '__main__':
 
 
 	b = B(clf, word_vecs)
-	test_corpus_indices = [i for i, sent in enumerate(german) if len(sent) < 10][:test_set_size]
+	test_corpus_indices = [i for i, sent in enumerate(german) if len(sent) < 20][:test_set_size]
 	test_corpus = [german[i] for i in test_corpus_indices]
 	test_corpus_en = [english[i] for i in test_corpus_indices]
 	test_corpus_als = [alfile[i] for i in test_corpus_indices]
