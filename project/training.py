@@ -23,7 +23,7 @@ def create_training_set(g_primes, word_vecs):
 	X = []
 	Y = []
 	n = len(g_primes)
-	filename = 'trainingset_n='+str(n)
+	filename = 'trainingset_n='+str(n)+'.npz'
 	if not os.path.isfile(filename):
 	# if True:
 		print "Creating training set.."
@@ -37,10 +37,15 @@ def create_training_set(g_primes, word_vecs):
 					X.append(false_vector)
 					Y.append(0)
 
-		pickle.dump((X, Y), open(filename, "wb"))
+		print "Serializing dataset.."
+		# pickle.dump((X, Y), open(filename, "w"))
+		np.savez(filename, X, Y)
 	else:
 		print "Loading training set.."
-		X, Y = pickle.load(open(filename, "rb"))
+		# X, Y = pickle.load(open(filename, "r"))
+		files = np.load(filename)
+		X = files['arr_0']
+		Y = files['arr_1']
 	print 'asdfasdf'
 	return X, Y
 
