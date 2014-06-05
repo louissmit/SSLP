@@ -3,6 +3,7 @@ import os.path
 from sent_utils import get_alignments, get_german_prime
 import numpy as np
 import cPickle as pickle
+from pprint import pprint
 import gensim
 
 def features(model, sent, left, right):
@@ -24,12 +25,15 @@ def create_training_set(g_primes, word_vecs):
 	n = len(g_primes)
 	filename = 'trainingset_n='+str(n)
 	if not os.path.isfile(filename):
-		for w, sent in enumerate(g_primes):
-			for i in xrange(0, len(sent)):
-				for j in xrange(i+1, len(sent)):
-					X.append(features(word_vecs, g_primes[w], i, j))
+	# if True:
+		for g_prime in g_primes:
+			for i in xrange(0, len(g_prime)):
+				for j in xrange(i+1, len(g_prime)):
+					true_vector = features(word_vecs, g_prime, i, j)
+					X.append(true_vector)
 					Y.append(1)
-					X.append(features(word_vecs, g_primes[w], j, i))
+					false_vector = features(word_vecs, g_prime, j, i)
+					X.append(false_vector)
 					Y.append(0)
 
 		pickle.dump((X, Y), open(filename, "wb"))
@@ -55,24 +59,24 @@ def train(word_vecs, corpus, g_primes):
 	else:
 		print "Loading classifier.."
 		clf = pickle.load(open(filename, "rb" ))
-	# print "Testing.."
-	# gut = 0
-	# all = 0
-	# for x in xrange(0, 100):
-	# 	test = get_german_prime(corpus[x], aligns[x])
-	# 	for i in xrange(0, len(test)):
-	# 		for j in xrange(i, len(test)):
-	# 			pred = clf.predict(features(word_vecs, test, i, j))
-	# 			if pred == 1:
-	# 				gut+=1;
-	# 			all+=1;
-	# 			pred = clf.predict(features(word_vecs, test, j, i))
-	# 			if pred == 0:
-	# 				gut+=1;
-	# 			all+=1;
-	#
-	#
-	# print (gut*1.0) / all
+	print "Testing.."
+	gut = 0
+	all = 0
+	for x in xrange(0, 10):
+		test = g_primes[x]
+		for i in xrange(0, len(test)):
+			for j in xrange(i, len(test)):
+				pred = clf.predict(features(word_vecs, test, i, j))
+				if pred == 1:
+					gut+=1;
+				all+=1;
+				pred = clf.predict(features(word_vecs, test, j, i))
+				if pred == 0:
+					gut+=1;
+				all+=1;
+
+
+	print (gut*1.0) / all
 
 	return clf
 
