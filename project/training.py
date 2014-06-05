@@ -46,7 +46,6 @@ def create_training_set(g_primes, word_vecs):
 		files = np.load(filename)
 		X = files['arr_0']
 		Y = files['arr_1']
-	print 'asdfasdf'
 	return X, Y
 
 def train(X, Y, n):
@@ -66,17 +65,14 @@ def train(X, Y, n):
 	return clf
 
 
-def test_classifier(clf, test_set):
+def test_classifier(clf, X, Y):
 	print "Testing.."
 	gut = 0
 	all = 0
-	for test_sent in test_set:
-		pred = clf.predict(test_sent)
-		if pred == 1:
-			gut+=1;
-		all+=1;
-		pred = clf.predict(test_sent)
-		if pred == 0:
+	for i, x in enumerate(X):
+		y = Y[i]
+		pred = clf.predict(x)
+		if pred == y:
 			gut+=1;
 		all+=1;
 	print (gut*1.0) / all
