@@ -89,7 +89,9 @@ if __name__ == '__main__':
 	test_set_size = 10
 	set = 'training'
 	english = [sent.split() for sent in list(open('../project2_data/'+set+'/p2_'+set+'.en', 'r'))][:train_set_size]
-	german = [sent.split() for sent in list(open('../project2_data/'+set+'/p2_'+set+'.nl', 'r'))][:train_set_size]
+	german = [sent.split() for sent in list(open('../project2_data/'+set+'/p2_'+set+'.nl', 'r'))]
+	word_vecs = get_word_vecs(german)
+	german = german[:train_set_size]
 	alfile = [al.split() for al in list(open('../project2_data/'+set+'/p2_'+set+'_symal.nlen', 'r'))][:train_set_size]
 
 
@@ -101,7 +103,6 @@ if __name__ == '__main__':
 	# print g_sent
 	# print precision(g_sent, sent)
 	aligns = get_alignments(alfile)
-	word_vecs = get_word_vecs(german, n=99999)
 	g_prime = [get_german_prime(sent, aligns[i]) for i, sent in enumerate(german)]
 	X, Y = create_training_set(g_prime, word_vecs)
 	clf = train(X, Y, train_set_size)
