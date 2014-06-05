@@ -117,17 +117,17 @@ if __name__ == '__main__':
 	alignments = get_alignments(test_corpus_als)
 	g_prime = [get_german_prime(sent, alignments[i]) for i, sent in enumerate(test_corpus)]
 
-	for sent_i in xrange(0, 10):
-		sent = test_corpus[sent_i]
-		print sent
-		print test_corpus_en[sent_i]
-		prime_sent = g_prime[sent_i]
-		print prime_sent
-		b = b.initAlphabetically(sent, prime_sent)
-		delta, bp = localSearch(b, sent)
-		print traverseBackpointers(sent, delta, bp, 0, len(sent))
-	print b.correct*1.0 / b.total
+	# for sent_i in xrange(0, 10):
+	# 	sent = test_corpus[sent_i]
+	# 	print sent
+	# 	print test_corpus_en[sent_i]
+	# 	prime_sent = g_prime[sent_i]
+	# 	print prime_sent
+	# 	b = b.initAlphabetically(sent, prime_sent)
+	# 	delta, bp = localSearch(b, sent)
+	# 	print traverseBackpointers(sent, delta, bp, 0, len(sent))
+	# print b.correct*1.0 / b.total
 
-	# iterate_local_search(b, test_corpus, g_prime)
+	iterate_local_search(b, test_corpus, g_prime)
 
 # 1000 = 15.3
