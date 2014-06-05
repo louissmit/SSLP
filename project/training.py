@@ -66,7 +66,7 @@ def train(word_vecs, g_primes, n):
 					false_vector = features(word_vecs, g_prime, j, i)
 					X.append(false_vector)
 					Y.append(0)
-					clf.partial_fit(X, Y)
+					clf.partial_fit(X, Y, np.asarray([0, 1]))
 		pickle.dump(clf, open(filename, "wb"))
 
 	else:
