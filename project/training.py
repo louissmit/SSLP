@@ -31,14 +31,13 @@ def create_training_set(sents, aligns, word_vecs):
 	return X, Y
 
 def train(word_vecs, n=100):
+	set = 'training'
+	german = list(open('../project2_data/'+set+'/p2_'+set+'.nl', 'r'))[:n]
+	aligns = get_alignments(n=n)
+
+	corpus = [s.split() for s in german]
 	filename = 'model_n='+str(n)
 	if not os.path.isfile(filename):
-		set = 'training'
-		german = list(open('../project2_data/'+set+'/p2_'+set+'.nl', 'r'))[:n]
-		aligns = get_alignments(n=n)
-
-		corpus = [s.split() for s in german]
-
 		clf = SGDClassifier(loss="hinge", penalty="l2")
 		print "Creating training set.."
 		X, y = create_training_set(corpus, aligns, word_vecs)
@@ -46,27 +45,28 @@ def train(word_vecs, n=100):
 		clf.fit(X, y)
 		pickle.dump(clf, open(filename, "wb"))
 
-		print "Testing.."
-		gut = 0
-		all = 0
-		for x in xrange(0, 100):
-			test = get_german_prime(corpus[x], aligns[x])
-			for i in xrange(0, len(test)):
-				for j in xrange(i, len(test)):
-					pred = clf.predict(features(word_vecs, test, i, j))
-					if pred == 1:
-						gut+=1;
-					all+=1;
-					pred = clf.predict(features(word_vecs, test, j, i))
-					if pred == 0:
-						gut+=1;
-					all+=1;
 
-
-		print (gut*1.0) / all
 	else:
 		print "Loading classifier.."
 		clf = pickle.load(open(filename, "rb" ))
+	print "Testing.."
+	gut = 0
+	all = 0
+	for x in xrange(0, 100):
+		test = get_german_prime(corpus[x], aligns[x])
+		for i in xrange(0, len(test)):
+			for j in xrange(i, len(test)):
+				pred = clf.predict(features(word_vecs, test, i, j))
+				if pred == 1:
+					gut+=1;
+				all+=1;
+				pred = clf.predict(features(word_vecs, test, j, i))
+				if pred == 0:
+					gut+=1;
+				all+=1;
+
+
+	print (gut*1.0) / all
 
 	return clf
 
