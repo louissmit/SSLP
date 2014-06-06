@@ -90,7 +90,7 @@ def calculate_score(test_corpus, g_prime):
 
 if __name__ == '__main__':
 	# testing oracle reordering
-	train_set_size = 10000
+	train_set_size = 1000
 	test_set_size = 100
 	set = 'training'
 	english = [sent.split() for sent in list(open('../project2_data/'+set+'/p2_'+set+'.en', 'r'))][:train_set_size]
@@ -108,6 +108,7 @@ if __name__ == '__main__':
 	g_prime_test = [get_german_prime(sent, aligns[i]) for i, sent in enumerate(german_test)]
 	X, Y = create_training_set(g_prime_test, word_vecs)
 	test_classifier(clf, X, Y)
+	print clf.score(X,Y)
 
 
 	b = B(clf, word_vecs)

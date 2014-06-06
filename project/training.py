@@ -36,7 +36,7 @@ def create_training_set(g_primes, word_vecs):
 					true_vector = features(word_vecs, g_prime, i, j)
 					X.append(true_vector)
 					Y.append(1)
-					false_vector = features(word_vecs, g_prime, j, i)
+					false_vector = features(word_vecs, g_prime, i, j, flip=True)
 					X.append(false_vector)
 					Y.append(0)
 
@@ -66,7 +66,7 @@ def train(word_vecs, g_primes, n):
 					true_vector = features(word_vecs, g_prime, i, j)
 					X.append(true_vector)
 					Y.append(1)
-					false_vector = features(word_vecs, g_prime, j, i)
+					false_vector = features(word_vecs, g_prime, i, j, flip=True)
 					X.append(false_vector)
 					Y.append(0)
 					clf.partial_fit(X, Y, np.asarray([0, 1]))
