@@ -90,8 +90,8 @@ def calculate_score(test_corpus, g_prime):
 
 if __name__ == '__main__':
 	# testing oracle reordering
-	train_set_size = 100
-	test_set_size = 10
+	train_set_size = 10000
+	test_set_size = 100
 	set = 'training'
 	english = [sent.split() for sent in list(open('../project2_data/'+set+'/p2_'+set+'.en', 'r'))][:train_set_size]
 	german = [sent.split() for sent in list(open('../project2_data/'+set+'/p2_'+set+'.nl', 'r'))]
@@ -118,16 +118,16 @@ if __name__ == '__main__':
 	alignments = get_alignments(test_corpus_als)
 	g_prime = [get_german_prime(sent, alignments[i]) for i, sent in enumerate(test_corpus)]
 
-	# for sent_i in xrange(0, 10):
-	# 	sent = test_corpus[sent_i]
-	# 	print sent
-	# 	print test_corpus_en[sent_i]
-	# 	prime_sent = g_prime[sent_i]
-	# 	print prime_sent
-	# 	b = b.initAlphabetically(sent, prime_sent)
-	# 	delta, bp = localSearch(b, sent)
-	# 	print traverseBackpointers(sent, delta, bp, 0, len(sent))
-	# print b.correct*1.0 / b.total
+	for sent_i in xrange(0, test_set_size):
+		sent = test_corpus[sent_i]
+	 	print sent
+	 	print test_corpus_en[sent_i]
+	 	prime_sent = g_prime[sent_i]
+	 	print prime_sent
+	 	b = b.initAlphabetically(sent, prime_sent)
+	 	delta, bp = localSearch(b, sent)
+	 	print traverseBackpointers(sent, delta, bp, 0, len(sent))
+	print b.correct*1.0 / b.total
 
-	iterate_local_search(b, test_corpus, g_prime)
+	#iterate_local_search(b, test_corpus, g_prime)
 
