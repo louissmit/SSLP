@@ -131,4 +131,3 @@ if __name__ == '__main__':
 
 	iterate_local_search(b, test_corpus, g_prime)
 
-# 1000 = 15.3

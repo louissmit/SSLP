@@ -6,15 +6,18 @@ import cPickle as pickle
 from pprint import pprint
 import gensim
 
-def features(model, sent, left, right):
+def features(model, sent, left, right, flip=False):
 	def get(i):
 		if i >= 0 and i < len(sent):
 			return model[sent[i]]
 		else:
 			return np.zeros(model.layer1_size)
 
+	sum = [np.sum([get(i) for i in [-1] + range(left + 1, right - 1)], axis=0)]
+	if flip:
+		left, right = right, left
 	conc = [get(i) for i in [left - 1, left, left + 1]]
-	conc += [np.sum([get(i) for i in [-1] + range(left + 1, right - 1)], axis=0)]
+	conc += sum
 	conc += [get(i) for i in [right - 1, right, right + 1]]
 	return np.concatenate(conc)
 
