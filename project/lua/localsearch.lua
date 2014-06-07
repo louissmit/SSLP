@@ -5,17 +5,17 @@ split = require('utils').split
 
 function localSearch(B, sent)
 	local n = table.getn(sent)
-	local beta = torch.IntTensor(n + 1, n + 1)
+	local beta = torch.Tensor(n + 1, n + 1)
 	local bp = torch.IntTensor(n + 1, n + 1)
-	local delta = torch.FloatTensor(n + 1, n + 1, n + 1)
+	local delta = torch.Tensor(n + 1, n + 1, n + 1)
 
---	for i = 1, n do
---	 	beta[i][i+1] = 0
---	 	for k = i+1, n+1 do
---	 		delta[i][i][k] = 0
---			delta[i][k][k] = 0
---    end
---  end
+	for i = 1, n do
+	 	beta[i][i+1] = 0
+	 	for k = i+1, n+1 do
+	 		delta[i][i][k] = 0
+			delta[i][k][k] = 0
+        end
+    end
 
 	for w = 2, n + 1 do
 		for i = 1, n - w + 1 do
@@ -28,7 +28,6 @@ function localSearch(B, sent)
 				if new_beta > beta[i][k] then
 					beta[i][k] = new_beta
 					bp[i][k] = j
-                    print(j)
                 end
             end
         end
@@ -74,14 +73,17 @@ function test_local_search(b)
     local f = assert(io.open('../../project2_data/training/p2_training.nl', "r"))
 
     local t = f:read()
+    local x = 1
     while t ~= nil do
         local line = split(t)
         local sortedline = {unpack(line)}
         table.sort(sortedline)
         b:initHeuristically(line, sortedline)
         local delta, bp = localSearch(b, line)
-        print(sortedline)
-        print(traverseBackpointers(line, delta, bp, 1, #line+1))
+--        print(sortedline)
+        result = traverseBackpointers(line, delta, bp, 1, #line+1)
+        print(x)
+        x = x + 1
         t = f:read()
     end
     f:close()
