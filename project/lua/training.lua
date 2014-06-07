@@ -5,10 +5,11 @@
 -- Time: 2:14 PM
 -- To change this template use File | Settings | File Templates.
 --
+WordVecs = require('word_vecs')
 
-
-function features(word_vecs, sent, left, right, flip)
+function features(word_vecs, sent, left, right, flip, vector_size)
     if flip == nil then flip = false end
+    if vector_size == nil then vector_size = 300 end
 
     local function get(i)
    		if i >= 0 and i < #sent then
@@ -36,33 +37,8 @@ function features(word_vecs, sent, left, right, flip)
 
 end
 
-
-function load_word_vecs(n)
-    if n == nil then n = 1000 end
-    local f = assert(io.open('../word_vecs_n='.. tostring(n) .. '.txt', "r"))
-    local t = f:read()
-
-    print(type(t))
-    function split(string)
-        local res = {}
-        for i in string.gmatch(string, "%S+") do
-            table.insert(res, i)
-        end
-        return res
-    end
-    shape = split(t)
-    local word_vecs = torch.Tensor(tonumber(shape[1]), tonumber(shape[2]))
-    local index = 1
-    t = f:read()
-    while t ~= nil do
-        line = split(t)
-        for i = 2, #line do
-            word_vecs[index][i-1] = tonumber(line[i])
-        end
-        t = f:read()
-    end
-    f:close()
-    return word_vecs
-end
-
-print(load_word_vecs()[1])
+word_vecs = WordVecs:new()
+word_vecs:load()
+--print(word_vecs)
+print(word_vecs:get('de'))
+--features(word_vecs)
