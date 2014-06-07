@@ -10,10 +10,11 @@ split = require('utils').split
 local WordVecs = {}
 
 function WordVecs:new()
-  self.word_vecs = nil
-  self.mapping = {}
-  self.__index = self
-  return self
+    self.n = nil
+    self.word_vecs = nil
+    self.mapping = {}
+    self.__index = self
+    return self
 end
 
 function WordVecs:get(word)
@@ -21,9 +22,9 @@ function WordVecs:get(word)
     return self.word_vecs[index]
 end
 
-function WordVecs:load(n)
-    if n == nil then n = 1000 end
-    local f = assert(io.open('../word_vecs_n='.. tostring(n) .. '.txt', "r"))
+function WordVecs:load_from_word2vec(n)
+    if n == nil then self.n = 1000 end
+    local f = assert(io.open('../word_vecs_n='.. tostring(self.n) .. '.txt', "r"))
     local t = f:read()
 
     local shape = split(t)
@@ -42,6 +43,17 @@ function WordVecs:load(n)
     end
     f:close()
     return self
+end
+
+function WordVecs:save()
+    torch.save('torch_wordvecs_n='..self.n, {self.word_vecs, self.mapping})
+end
+
+function WordVecs:load(n)
+    if n == nil then self.n = 1000 end
+    local res = torch.load('torch_wordvecs_n='..self.n)
+    self.word_vecs = res[1]
+    self.mapping = res[2]
 end
 
 return WordVecs

@@ -76,7 +76,7 @@ function test_local_search(b)
     local x = 1
     while t ~= nil do
         local line = split(t)
-        local sortedline = {unpack(line)}
+        local sortedline = {unpack(line)} -- copy table
         table.sort(sortedline)
         b:initHeuristically(line, sortedline)
         local delta, bp = localSearch(b, line)
