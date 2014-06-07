@@ -1,6 +1,7 @@
 require "torch"
 package.path = package.path .. "/?.lua"
 B = require("B")
+split = require('utils').split
 
 function localSearch(B, sent)
 	local n = table.getn(sent)
@@ -18,7 +19,7 @@ function localSearch(B, sent)
 
 	for w = 2, n + 1 do
 		for i = 1, n - w + 1 do
-			k = i + w
+			local k = i + w
 			beta[i][k] = -math.huge
 			for j = i + 1, k-1 do
 				delta[i][j][k] = delta[i][j][k - 1] + delta[i + 1][j][k] - delta[i + 1][j][k - 1] + B:get(sent, k - 1, i) - B:get(sent, i, k - 1)
@@ -27,6 +28,7 @@ function localSearch(B, sent)
 				if new_beta > beta[i][k] then
 					beta[i][k] = new_beta
 					bp[i][k] = j
+                    print(j)
                 end
             end
         end
@@ -35,7 +37,7 @@ function localSearch(B, sent)
 end
 
 local function traverseBackpointers(sent, delta, bp, i, k)
-  
+
 	if (k - i) > 1 then
         local j = bp[i][k]
         local left = traverseBackpointers(sent, delta, bp, i, j)
@@ -52,18 +54,37 @@ local function traverseBackpointers(sent, delta, bp, i, k)
             table.insert(res, word)
         end
         return res
-    
+
     else
 		return {sent[i]}
   end
-  
+
 end
 
-input = {"b", "a", "d", "c"}
-sent_p = {"a", "b", "c", "d"}
+--input = {"b", "a", "d", "c"}
+--sent_p = {"a", "b", "c", "d"}
 b = B:new()
-b:initAlphabetically(input, sent_p)
+--b:initAlphabetically(input, sent_p)
+--
+--delta, bp = localSearch(B, input)
+--
+--print(table.concat(traverseBackpointers(input, delta, bp, 1, #input+1)))
 
-delta, bp = localSearch(B, input)
+function test_local_search(b)
+    local f = assert(io.open('../../project2_data/training/p2_training.nl', "r"))
 
-print(table.concat(traverseBackpointers(input, delta, bp, 1, #input+1)))
+    local t = f:read()
+    while t ~= nil do
+        local line = split(t)
+        local sortedline = {unpack(line)}
+        table.sort(sortedline)
+        b:initHeuristically(line, sortedline)
+        local delta, bp = localSearch(b, line)
+        print(sortedline)
+        print(traverseBackpointers(line, delta, bp, 1, #line+1))
+        t = f:read()
+    end
+    f:close()
+end
+
+test_local_search(b)
