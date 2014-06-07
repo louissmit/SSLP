@@ -2,6 +2,7 @@ import numpy as np
 import gensim
 import os.path
 import cPickle as pickle
+import json
 
 def get_german_prime(german_sent, alignments):
 	"""
@@ -48,3 +49,13 @@ def get_word_vecs(corpus):
 		word_vecs.train(corpus*2)
 		pickle.dump(word_vecs, open(file, "wb" ) )
 	return word_vecs
+
+def reserialize_wordvecs(n=1000):
+	file = 'word_vecs_n='+str(n)
+	if os.path.isfile(file):
+		print "Loading word vectors.."
+		word_vecs = pickle.load(open(file, "rb" ))
+		word_vecs.save_word2vec_format('word_vecs_n='+str(n) + '.txt', binary=False)
+
+if __name__ == '__main__':
+	reserialize_wordvecs()
