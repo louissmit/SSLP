@@ -62,14 +62,14 @@ function train_nn(input_size, hu_size, g_primes, word_vecs)
         mlp:updateParameters(learning_rate)
     end
 
-    for g_prime in g_primes do
+    for _, g_prime in pairs(g_primes) do
         for i = 1, #g_prime do
             for j = i+1, #g_prime do
                 local true_vector = features(word_vecs, g_prime, i, j)
                 train_one_sample(true_vector, 1, learning_rate)
 
                 local false_vector = features(word_vecs, g_prime, i, j, true)
-                train_one_sample(false_vector, 0, learning_rate)
+                train_one_sample(false_vector, -1, learning_rate)
             end
         end
     end
@@ -80,11 +80,17 @@ end
 word_vecs = WordVecs:new()
 word_vecs:load()
 f = assert(io.open('../../project2_data/training/p2_training.nl', "r"))
-t = f:read()
-sent = split(t)
-print(sent)
-print(features(word_vecs, sent, 1, 5))
---train_nn()
+
+g_primes = {}
+n = 1
+while n < 100 do
+    t = f:read()
+    sent = split(t)
+    table.insert(g_primes, sent)
+    n = n + 1
+end
+
+mlp = train_nn(2100,4000, g_primes, word_vecs)
 --word_vecs:save()
 --print(word_vecs)
 --print(word_vecs:get('de'))
