@@ -8,6 +8,7 @@
 WordVecs = require('word_vecs')
 require('nn')
 split = require('utils').split
+bleu = require('bleu').bleu
 
 function features(word_vecs, sent, left, right, flip, vector_size)
     if flip == nil then flip = false end
@@ -150,7 +151,24 @@ function main()
     print(gut/total)
     return gut, total, mlp
 end
-gut, total, mlp = main()
+
+function test_bleu()
+    local f = assert(io.open('../../project2_data/training/p2_training.nl', "r"))
+    local f_gprimes = assert(io.open('../gprimes_n=10000', "r"))
+    local i = 0
+    local n = 10000
+    local res = 0
+    while i < n do
+        local nl = split(f:read())
+        local prime = split(f_gprimes:read())
+        res = res + bleu(prime, nl)
+        i = i + 1
+    end
+    print(res / n)
+
+end
+test_bleu()
+--gut, total, mlp = main()
 --word_vecs = WordVecs:new()
 --word_vecs:load_from_word2vec(100000)
 --word_vecs:save()

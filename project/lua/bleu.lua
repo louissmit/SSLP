@@ -9,18 +9,19 @@
 bleu = {}
 
 local function ngrams(s, n)
-    local result = ""
-    for i = 1, #s - n +1 do
+    local result = {}
+    for i = 1, #s - n do
+        local ngram = ""
         for j = i, i+n  do
-            result = result.." "..s[j]
---            table.insert(result, s[j])
+            ngram = ngram.." "..s[j]
         end
+        table.insert(result, ngram)
     end
 	return result
 end
 
 local function precision(gold, out)
-	if gold == nil or out == nil then
+	if #gold == 0 or #out == 0 then
 		return 1
     end
     local right = 0
@@ -28,12 +29,13 @@ local function precision(gold, out)
     local done = {}
     for _, g in pairs(gold) do
         for _, o in pairs(out) do
-            if not done[o] then
+            if done[o] == nil then
                 done[o] = true
                 count = count + 1
-                if g == o then
-                    right = right + 1
-                end
+
+            end
+            if g == o then
+                right = right + 1
             end
 
         end
@@ -46,12 +48,11 @@ end
 
 
 function bleu.bleu(gold, out)
-	local bp = min(1, len(out) / len(gold))
+	local bp = math.min(1, #out / #gold)
 	local ps = {}
 	for n = 1, 4 do
         table.insert(ps, precision(ngrams(gold, n), ngrams(out, n)))
     end
-
 	return bp * ps[1] * ps[2] * ps[3] * ps[4]
 end
 
