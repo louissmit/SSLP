@@ -23,7 +23,7 @@ function WordVecs:get(word)
 end
 
 function WordVecs:load_from_word2vec(n)
-    if n == nil then self.n = 1000 end
+    self.n = n
     local f = assert(io.open('../word_vecs_n='.. tostring(self.n) .. '.txt', "r"))
     local t = f:read()
 
@@ -50,7 +50,7 @@ function WordVecs:save()
 end
 
 function WordVecs:load(n)
-    if n == nil then self.n = 1000 end
+    self.n = n
     local res = torch.load('torch_wordvecs_n='..self.n)
     self.word_vecs = res[1]
     self.mapping = res[2]

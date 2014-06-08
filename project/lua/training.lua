@@ -48,7 +48,7 @@ function train_nn(input_size, hu_size, g_primes, word_vecs)
     mlp:add(nn.Tanh())
     mlp:add(nn.Linear(hu_size, output_size))
 
-    local criterion = nn.ClassNLLCriterion()
+    local criterion = nn.MarginCriterion()
 
     local function train_one_sample(input, output, learning_rate)
         criterion:forward(mlp:forward(input), output)
@@ -57,41 +57,97 @@ function train_nn(input_size, hu_size, g_primes, word_vecs)
         -- (1) zero the accumulation of the gradients
         mlp:zeroGradParameters()
         -- (2) accumulate gradients
-        mlp:backward(input, criterion:backward(mlp.output, output))
+        local mlp_out = mlp.output
+--        print('mlpout', mlp_out)
+        local error = criterion:backward(mlp_out, output)
+--        print('error', error)
+        mlp:backward(input, error)
         -- (3) update parameters with a 0.01 learning rate
         mlp:updateParameters(learning_rate)
     end
 
+    local count = 1
     for _, g_prime in pairs(g_primes) do
         for i = 1, #g_prime do
             for j = i+1, #g_prime do
+                local timer = torch.Timer()
                 local true_vector = features(word_vecs, g_prime, i, j)
                 train_one_sample(true_vector, 1, learning_rate)
 
                 local false_vector = features(word_vecs, g_prime, i, j, true)
                 train_one_sample(false_vector, -1, learning_rate)
+                print(timer:time().real)
+                print(count)
+                count = count + 1
             end
         end
     end
     return mlp
 end
 
-
-word_vecs = WordVecs:new()
-word_vecs:load()
-f = assert(io.open('../../project2_data/training/p2_training.nl', "r"))
-
-g_primes = {}
-n = 1
-while n < 100 do
-    t = f:read()
-    sent = split(t)
-    table.insert(g_primes, sent)
-    n = n + 1
+function test_sample(word_vecs, g_primes, mlp)
+   local total = 0
+   local gut = 0
+   for _, g_prime in pairs(g_primes) do
+       print(g_prime)
+        for i = 1, #g_prime do
+            for j = i+1, #g_prime do
+                local true_vector = features(word_vecs, g_prime, i, j)
+                local res = mlp:forward(true_vector)
+                if res[1] > 0 then
+                    print(res[1])
+                    gut = gut + 1
+                end
+                total = total + 1
+                local false_vector = features(word_vecs, g_prime, i, j, true)
+                local res = mlp:forward(false_vector)
+                if res[1] < 0 then
+                    print(res[1])
+                    gut = gut + 1
+                end
+                total = total + 1
+            end
+        end
+   end
+   return gut, total
 end
 
-mlp = train_nn(2100,4000, g_primes, word_vecs)
+function main()
+    local word_vecs = WordVecs:new()
+    word_vecs:load(100000)
+    local f = assert(io.open('../../project2_data/training/p2_training.nl', "r"))
+
+    local train_set = {}
+    local n = 0
+    local train_size = 50
+    local test_size = 10
+    local sent_size = 10
+    while n < train_size do
+        local t = f:read()
+        local sent = split(t)
+        if #sent < sent_size then
+            table.insert(train_set, sent)
+            n = n + 1
+        end
+    end
+    print(train_set)
+
+    local mlp = train_nn(2100, 2400, train_set, word_vecs)
+--    local test_set = {}
+--    while (n - train_size) < test_size do
+--        local t = f:read()
+--        local sent = split(t)
+--        if #sent < sent_size then
+--            table.insert(test_set, sent)
+--            n = n + 1
+--        end
+--    end
+
+    local gut, total = test_sample(word_vecs, train_set, mlp)
+    print(gut/total)
+    return gut, total, mlp
+end
+gut, total, mlp = main()
+--word_vecs = WordVecs:new()
+--word_vecs:load_from_word2vec(100000)
 --word_vecs:save()
---print(word_vecs)
---print(word_vecs:get('de'))
---features(word_vecs)
