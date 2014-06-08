@@ -50,6 +50,11 @@ def get_word_vecs(corpus):
 		pickle.dump(word_vecs, open(file, "wb" ) )
 	return word_vecs
 
+def save(corpus, name):
+	with open(name, 'w') as f:
+		for s in corpus:
+			f.write(" ".join(s) + '\n')
+
 def reserialize_wordvecs(n=1000):
 	file = 'word_vecs_n='+str(n)
 	if os.path.isfile(file):

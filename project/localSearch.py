@@ -1,7 +1,7 @@
 from B import B
 import numpy as np
 from training import train, test_classifier, create_training_set
-from sent_utils import get_alignments, get_german_prime, get_word_vecs
+from sent_utils import get_alignments, get_german_prime, get_word_vecs, save
 from bleu import bleu, precision
 
 import cPickle as pickle
@@ -94,13 +94,13 @@ def calculate_score(test_corpus, g_prime):
 
 if __name__ == '__main__':
 	# testing oracle reordering
-	train_set_size = 1000
+	train_set_size = 10000
 	test_set_size = 100
 	set = 'training'
 	english = [sent.split() for sent in list(open('../project2_data/' + set + '/p2_' + set + '.en', 'r'))][
 			  :train_set_size]
 	german = [sent.split() for sent in list(open('../project2_data/' + set + '/p2_' + set + '.nl', 'r'))]
-	word_vecs = get_word_vecs(german)
+	# word_vecs = get_word_vecs(german)
 	german_test = german[train_set_size:train_set_size + test_set_size]
 	german = german[:train_set_size]
 	alfile = [al.split() for al in list(open('../project2_data/' + set + '/p2_' + set + '_symal.nlen', 'r'))][
@@ -108,31 +108,34 @@ if __name__ == '__main__':
 
 	aligns = get_alignments(alfile)
 	g_prime = [get_german_prime(sent, aligns[i]) for i, sent in enumerate(german)]
-	clf = train(word_vecs, g_prime, train_set_size)
-	# print len(X)
-	g_prime_test = [get_german_prime(sent, aligns[i]) for i, sent in enumerate(german_test)]
-	X, Y = create_training_set(g_prime_test, word_vecs)
-	test_classifier(clf, X, Y)
-	print clf.score(X, Y)
+	name = 'gprimes_n='+str(train_set_size)
+	save(g_prime, name)
 
-	b = B(clf, word_vecs)
-	test_corpus_indices = [i for i, sent in enumerate(german) if len(sent) < 20][:test_set_size]
-	test_corpus = [german[i] for i in test_corpus_indices]
-	test_corpus_en = [english[i] for i in test_corpus_indices]
-	test_corpus_als = [alfile[i] for i in test_corpus_indices]
-	alignments = get_alignments(test_corpus_als)
-	g_prime = [get_german_prime(sent, alignments[i]) for i, sent in enumerate(test_corpus)]
-
-	# for sent_i in xrange(0, test_set_size):
-	# 	sent = test_corpus[sent_i]
-	# 	print sent
-	# 	print test_corpus_en[sent_i]
-	# 	prime_sent = g_prime[sent_i]
-	# 	print prime_sent
-	# 	b = b.initAlphabetically(sent, prime_sent)
-	# 	delta, bp = localSearch(b, sent)
-	# 	print traverseBackpointers(sent, delta, bp, 0, len(sent))
-	# print b.correct * 1.0 / b.total
-
-	iterate_local_search(b, test_corpus, g_prime)
+	# clf = train(word_vecs, g_prime, train_set_size)
+	# # print len(X)
+	# g_prime_test = [get_german_prime(sent, aligns[i]) for i, sent in enumerate(german_test)]
+	# X, Y = create_training_set(g_prime_test, word_vecs)
+	# test_classifier(clf, X, Y)
+	# print clf.score(X, Y)
+	#
+	# b = B(clf, word_vecs)
+	# test_corpus_indices = [i for i, sent in enumerate(german) if len(sent) < 20][:test_set_size]
+	# test_corpus = [german[i] for i in test_corpus_indices]
+	# test_corpus_en = [english[i] for i in test_corpus_indices]
+	# test_corpus_als = [alfile[i] for i in test_corpus_indices]
+	# alignments = get_alignments(test_corpus_als)
+	# g_prime = [get_german_prime(sent, alignments[i]) for i, sent in enumerate(test_corpus)]
+	#
+	# # for sent_i in xrange(0, test_set_size):
+	# # 	sent = test_corpus[sent_i]
+	# # 	print sent
+	# # 	print test_corpus_en[sent_i]
+	# # 	prime_sent = g_prime[sent_i]
+	# # 	print prime_sent
+	# # 	b = b.initAlphabetically(sent, prime_sent)
+	# # 	delta, bp = localSearch(b, sent)
+	# # 	print traverseBackpointers(sent, delta, bp, 0, len(sent))
+	# # print b.correct * 1.0 / b.total
+	#
+	# iterate_local_search(b, test_corpus, g_prime)
 
