@@ -54,12 +54,12 @@ end
 
 
 function bleu.bleu(gold, out)
-	local bp = math.min(1, #out / #gold)
+	local bp = math.min(1, math.exp(1 - #out / #gold))
 	local ps = {}
 	for n = 1, 4 do
         table.insert(ps, precision(ngrams(gold, n), ngrams(out, n)))
     end
-	return bp * ps[1] * ps[2] * ps[3] * ps[4]
+	return bp * (ps[1] * ps[2] * ps[3] * ps[4])/4
 end
 
 
