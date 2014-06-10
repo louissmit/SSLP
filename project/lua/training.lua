@@ -153,10 +153,10 @@ function main()
 end
 
 function test_bleu()
-    local f = assert(io.open('../../project2_data/training/p2_training.nl', "r"))
-    local f_gprimes = assert(io.open('../gprimes_n=10000', "r"))
+    local f = assert(io.open('../data/100000/train.de', "r"))
+    local f_gprimes = assert(io.open('../data/100000/train.de.prime', "r"))
     local i = 0
-    local n = 10000
+    local n = 99415
     local res = 0
     while i < n do
         local nl = split(f:read())

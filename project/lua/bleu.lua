@@ -11,12 +11,18 @@ bleu = {}
 local function ngrams(s, n)
     local result = {}
     for i = 1, #s - n do
-        local ngram = ""
+        local ngram = false
         for j = i, i+n  do
-            ngram = ngram.." "..s[j]
+            if not ngram then
+                ngram = s[j]
+            else
+                ngram = ngram.." "..s[j]
+            end
+
         end
         table.insert(result, ngram)
     end
+--    print(result)
 	return result
 end
 
