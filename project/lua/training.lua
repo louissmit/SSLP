@@ -152,21 +152,7 @@ function main()
     return gut, total, mlp
 end
 
-function test_bleu()
-    local f = assert(io.open('../data/100000/train.de', "r"))
-    local f_gprimes = assert(io.open('../data/100000/train.de.prime', "r"))
-    local i = 0
-    local n = 99415
-    local res = 0
-    while i < n do
-        local nl = split(f:read())
-        local prime = split(f_gprimes:read())
-        res = res + bleu(prime, nl)
-        i = i + 1
-    end
-    print(res / n)
 
-end
 test_bleu()
 --gut, total, mlp = main()
 --word_vecs = WordVecs:new()
