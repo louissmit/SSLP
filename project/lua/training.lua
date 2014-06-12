@@ -120,7 +120,7 @@ end
 
 function main()
     local word_vecs = WordVecs:new()
-    word_vecs:load(361068)
+    word_vecs:load(100000)
 --    local f = assert(io.open('../../project2_data/training/p2_training.nl', "r"))
     local train_primes = assert(io.open('../data/100000/train.de.prime', "r"))
 --    local test = assert(io.open('../data/100000/test.de', "r"))
@@ -157,6 +157,6 @@ function main()
 end
 
 gut, total, mlp = main()
---word_vecs = WordVecs:new()
+--word_vecs = WordVecs:new(100000)
 --word_vecs:load_from_word2vec('../data/word_vecs_europarl')
 --word_vecs:save()
