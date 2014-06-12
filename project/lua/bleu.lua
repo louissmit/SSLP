@@ -12,15 +12,7 @@ bleu = {}
 local function ngrams(s, n)
     local result = {}
     for i = 1, #s - n + 1 do
-        local ngram = false
-        for j = i, i+n-1  do
-            if not ngram then
-                ngram = s[j]
-            else
-                ngram = ngram.." "..s[j]
-            end
-
-        end
+        local ngram = table.concat({unpack(s, i, i+n-1)}, " ")
         table.insert(result, ngram)
     end
 	return result
@@ -48,14 +40,12 @@ local function precision(gold, out)
     end
 
     return right /count
-
---	return len(set(gold) & set(out)) / len(set(out))
 end
 
 
-
 function bleu.bleu(gold, out)
-	local bp = math.min(1, math.exp(1 - #out / #gold))
+--	local bp = math.min(1, math.exp(1 - (#gold/ #out)))
+    local bp = 1
 	local ps = {}
     -- unigram
     table.insert(ps, precision(gold, out))

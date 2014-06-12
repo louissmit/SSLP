@@ -9,6 +9,7 @@ WordVecs = require('word_vecs')
 require('nn')
 split = require('utils').split
 bleu = require('bleu').bleu
+require('BLEUCriterion')
 
 function features(word_vecs, sent, left, right, flip, vector_size)
     if flip == nil then flip = false end
@@ -40,45 +41,48 @@ function features(word_vecs, sent, left, right, flip, vector_size)
 
 end
 
-function train_nn(input_size, hu_size, g_primes, word_vecs)
+function train_nn(g_primes, word_vecs, input_size, hu_sizes, epochs, learning_rate)
     local timer = torch.Timer()
     local mlp = nn.Sequential();  -- make a multi-layer perceptron
     local output_size = 1
-    local learning_rate = 0.01
 
-    mlp:add(nn.Linear(input_size, hu_size))
+    mlp:add(nn.Linear(input_size, hu_sizes[1]))
     mlp:add(nn.Tanh())
---    mlp:add(nn.Linear(hu_size, hu_size))
---    mlp:add(nn.Tanh())
-    mlp:add(nn.Linear(hu_size, output_size))
+    mlp:add(nn.Linear(hu_sizes[1], hu_sizes[2]))
+    mlp:add(nn.Tanh())
+    mlp:add(nn.Linear(hu_sizes[2], output_size))
 
     local criterion = nn.MarginCriterion()
     local trainer = nn.StochasticGradient(mlp, criterion)
-    trainer.maxIteration = 2
+    trainer.maxIteration = epochs
     trainer.learningRate = learning_rate
 
+    local count = 0
     local function add_to_batch(batch, vector, label)
+        count = count + 1
+--        print('adding sample '..tostring(count))
         table.insert(batch, {vector, label})
     end
     local batch_size = 100
     local batch = {}
-    local count = 1
+    local sample_size = 10
+    local sampled = {}
     for _, g_prime in pairs(g_primes) do
-        for i = 1, #g_prime do
-            for j = i+1, #g_prime do
---                if count % batch_size == 0 then
---                    function batch:size() return batch_size end
---                    print(batch:size())
---                    trainer:train(batch)
---                    batch = {}
---                end
+        local sample_count = 0
+        if #g_prime ~= 1 then
+            while sample_count < sample_size do
+                local i = math.ceil(torch.rand(1)[1]*#g_prime)
+                local j = math.ceil(torch.rand(1)[1]*#g_prime)
+                if i~=j and not sampled[{i,j}] then
+                    local true_vector = features(word_vecs, g_prime, i, j)
+                    criterion:forward(mlp:forward(true_vector), 1)
+                    add_to_batch(batch, true_vector, 1)
 
-                local true_vector = features(word_vecs, g_prime, i, j)
-                add_to_batch(batch, true_vector, 1)
-
-                local false_vector = features(word_vecs, g_prime, i, j, true)
-                add_to_batch(batch, false_vector, -1)
-                count = count + 1
+                    local false_vector = features(word_vecs, g_prime, i, j, true)
+                    add_to_batch(batch, false_vector, -1)
+                    sampled[{i,j}] = true
+                    sample_count = sample_count + 1
+                end
             end
         end
     end
@@ -94,7 +98,6 @@ function test_sample(word_vecs, g_primes, mlp)
    local total = 0
    local gut = 0
    for _, g_prime in pairs(g_primes) do
-       print(g_prime)
         for i = 1, #g_prime do
             for j = i+1, #g_prime do
                 local true_vector = features(word_vecs, g_prime, i, j)
@@ -117,17 +120,18 @@ end
 
 function main()
     local word_vecs = WordVecs:new()
-    word_vecs:load(100000)
-    local f = assert(io.open('../../project2_data/training/p2_training.nl', "r"))
-    local f_gprimes = assert(io.open('../gprimes_n=10000', "r"))
+    word_vecs:load(361068)
+--    local f = assert(io.open('../../project2_data/training/p2_training.nl', "r"))
+    local train_primes = assert(io.open('../data/100000/train.de.prime', "r"))
+--    local test = assert(io.open('../data/100000/test.de', "r"))
 
     local train_set = {}
     local n = 0
-    local train_size = 50
-    local test_size = 20
+    local train_size = 1000
+    local test_size = 100
     local sent_size = 10
     while n < train_size do
-        local t = f:read()
+        local t = train_primes:read()
         local sent = split(t)
         if #sent < sent_size then
             table.insert(train_set, sent)
@@ -136,10 +140,10 @@ function main()
     end
     print(train_set)
 
-    local mlp = train_nn(2100, 500, train_set, word_vecs)
+    local mlp = train_nn(train_set, word_vecs, 2100, {256, 64}, 10, 0.01)
     local test_set = {}
     while (n - train_size) < test_size do
-        local t = f:read()
+        local t = train_primes:read()
         local sent = split(t)
         if #sent < sent_size then
             table.insert(test_set, sent)
@@ -152,9 +156,7 @@ function main()
     return gut, total, mlp
 end
 
-
-test_bleu()
---gut, total, mlp = main()
+gut, total, mlp = main()
 --word_vecs = WordVecs:new()
---word_vecs:load_from_word2vec(100000)
+--word_vecs:load_from_word2vec('../data/word_vecs_europarl')
 --word_vecs:save()

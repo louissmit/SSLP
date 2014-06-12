@@ -9,8 +9,8 @@ split = require('utils').split
 
 local WordVecs = {}
 
-function WordVecs:new()
-    self.n = nil
+function WordVecs:new(n)
+    self.n = n
     self.word_vecs = nil
     self.mapping = {}
     self.__index = self
@@ -22,9 +22,8 @@ function WordVecs:get(word)
     return self.word_vecs[index]
 end
 
-function WordVecs:load_from_word2vec(n)
-    self.n = n
-    local f = assert(io.open('../word_vecs_n='.. tostring(self.n) .. '.txt', "r"))
+function WordVecs:load_from_word2vec(filename)
+    local f = assert(io.open(filename, "r"))
     local t = f:read()
 
     local shape = split(t)

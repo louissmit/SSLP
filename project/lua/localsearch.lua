@@ -81,8 +81,8 @@ function test_local_search(b)
         b:initHeuristically(line, sortedline)
         local delta, bp = localSearch(b, line)
 --        print(sortedline)
-        result = traverseBackpointers(line, delta, bp, 1, #line+1)
-        print(x)
+        local result = traverseBackpointers(line, delta, bp, 1, #line+1)
+        print(result)
         x = x + 1
         t = f:read()
     end
