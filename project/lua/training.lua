@@ -43,6 +43,7 @@ function features(word_vecs, sent, left, right, flip, vector_size)
 end
 
 function sample_g_prime(word_vecs, batch, g_prime, sample_size)
+    -- Get some word vectors from the gold standard reordering
     if #g_prime ~= 1 then
         local sample_count = 0
         local sampled = {}
@@ -102,6 +103,7 @@ function train_nn(g_primes, word_vecs, input_size, hu_sizes, epochs, learning_ra
 end
 
 function test_sample(word_vecs, g_primes, mlp, sample_size)
+    -- Test the model on gold preferences
    local total = 0
    local gut = 0
    local batch = {}
@@ -136,7 +138,7 @@ function main()
     local test_size = 100
     local sent_size = 100
 
-
+    -- Make training set
     while n < train_size do
         local t = train_primes:read()
         local sent = split(t)
@@ -146,13 +148,16 @@ function main()
         end
     end
 --    print(train_set)
+
+    -- Train a MLP on golden vectors
     local sample_size = 10
     local learning_rate = 0.01
     local epochs = 10
     local hidden_units = {256, 64}
     local input_size = 2100
-
     local mlp = train_nn(train_set, word_vecs, input_size, hidden_units, epochs, learning_rate, sample_size)
+    
+    -- Test the golden model
     local test_set = {}
     while (n - train_size) < test_size do
         local t = train_primes:read()
