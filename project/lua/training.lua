@@ -10,37 +10,12 @@ require('nn')
 split = require('utils').split
 factorial = require('utils').factorial
 bleu = require('bleu').bleu
+B = require("B")
+require('localsearch')
+features = require('utils').features
 --require('BLEUCriterion')
 
-function features(word_vecs, sent, left, right, flip, vector_size)
-    if flip == nil then flip = false end
-    if vector_size == nil then vector_size = 300 end
 
-    local function get(i)
-   		if i > 0 and i < #sent then
-			return word_vecs:get(sent[i])
-		else
-			return torch.Tensor(vector_size)
-        end
-    end
-    local sum = torch.Tensor(vector_size)
-    for i = left+1, right-1 do
-        sum:add(get(i))
-    end
-    if flip then
-        left, right = right, left
-    end
-    local res = get(left-1)
-    for _, i in pairs({left, left+1}) do
-        res = torch.cat(res, get(i), 1)
-    end
-    res = torch.cat(res, sum, 1)
-    for _, i in pairs({right-1, right, right+1}) do
-        res = torch.cat(res, get(i), 1)
-    end
-    return res
-
-end
 
 function sample_g_prime(word_vecs, batch, g_prime, sample_size)
     if #g_prime ~= 1 then
@@ -95,9 +70,9 @@ function train_nn(g_primes, word_vecs, input_size, hu_sizes, epochs, learning_ra
     end
 
     function batch:size() return #batch end
-    print(batch:size())
+    print('batch size:', batch:size())
     trainer:train(batch)
-    print(timer:time().real)
+    print('training time:', timer:time().real)
     return mlp
 end
 
@@ -128,44 +103,58 @@ function main()
     word_vecs:load(100000)
 --    local f = assert(io.open('../../project2_data/training/p2_training.nl', "r"))
     local train_primes = assert(io.open('../data/100000/train.de.prime', "r"))
---    local test = assert(io.open('../data/100000/test.de', "r"))
+    local test = assert(io.open('../data/100000/test.de', "r"))
+    local test_primes = assert(io.open('../data/100000/test.de.prime', "r"))
 
     local train_set = {}
     local n = 0
-    local train_size = 1000
+    local train_size = 25000
     local test_size = 100
-    local sent_size = 100
 
 
+    -- create train set
     while n < train_size do
         local t = train_primes:read()
         local sent = split(t)
-        if #sent < sent_size then
-            table.insert(train_set, sent)
-            n = n + 1
-        end
+        table.insert(train_set, sent)
+        n = n + 1
     end
 --    print(train_set)
     local sample_size = 10
     local learning_rate = 0.01
     local epochs = 10
-    local hidden_units = {256, 64}
+    local hidden_units = {512, 64}
     local input_size = 2100
 
+    -- train MLP
     local mlp = train_nn(train_set, word_vecs, input_size, hidden_units, epochs, learning_rate, sample_size)
+    torch.save('MLP:n='..tostring(train_size)..'_sample_size='..tostring(sample_size)..'_epochs=10'..'_hidden_units='
+            ..tostring(hidden_units[1])..','..tostring(hidden_units[2])..'_learning_rate'..tostring(learning_rate), mlp)
+
+    -- create test set
     local test_set = {}
-    while (n - train_size) < test_size do
-        local t = train_primes:read()
+    local test_set_prime = {}
+    n = 0
+    while n < test_size do
+        local t = test:read()
+        local t_prime = test_primes:read()
         local sent = split(t)
-        if #sent < sent_size then
-            table.insert(test_set, sent)
-            n = n + 1
-        end
+        local sent_prime = split(t_prime)
+        table.insert(test_set, sent)
+        table.insert(test_set_prime, sent_prime)
+        n = n + 1
     end
 
-    local gut, total = test_sample(word_vecs, test_set, mlp, sample_size)
-    print(gut/total)
-    return gut, total, mlp
+
+    local b = B:new(mlp, word_vecs)
+    permuted_test_set = run_on_corpus(test_set, b)
+
+    print('BLEU:', bleu(test_set_prime, test_set))
+    print('BLEU permuted:', bleu(test_set_prime, permuted_test_set))
+
+--    local gut, total = test_sample(word_vecs, train_set, mlp, sample_size)
+--    print(gut/total)
+--    return gut, total, mlp
 end
 
 gut, total, mlp = main()

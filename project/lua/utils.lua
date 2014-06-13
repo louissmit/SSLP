@@ -24,4 +24,35 @@ function utils.factorial(n)
       end
 end
 
+
+
+function utils.features(word_vecs, sent, left, right, flip, vector_size)
+    if flip == nil then flip = false end
+    if vector_size == nil then vector_size = 300 end
+
+    local function get(i)
+   		if i > 0 and i < #sent then
+			return word_vecs:get(sent[i])
+		else
+			return torch.Tensor(vector_size)
+        end
+    end
+    local sum = torch.Tensor(vector_size)
+    for i = left+1, right-1 do
+        sum:add(get(i))
+    end
+    if flip then
+        left, right = right, left
+    end
+    local res = get(left-1)
+    for _, i in pairs({left, left+1}) do
+        res = torch.cat(res, get(i), 1)
+    end
+    res = torch.cat(res, sum, 1)
+    for _, i in pairs({right-1, right, right+1}) do
+        res = torch.cat(res, get(i), 1)
+    end
+    return res
+
+end
 return utils

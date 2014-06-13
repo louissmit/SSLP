@@ -43,20 +43,34 @@ local function precision(gold, out)
 end
 
 
-function bleu.bleu(gold, out)
---	local bp = math.min(1, math.exp(1 - (#gold/ #out)))
-    local bp = 1
-	local ps = {}
-    -- unigram
-    table.insert(ps, precision(gold, out))
-	for n = 2, 4 do
-        local gold_ngram = ngrams(gold, n)
-        local out_ngram = ngrams(out, n)
-        local ps_sample = precision(gold_ngram, out_ngram)
+function bleu.bleu(golds, outs)
+    local gold_lengths = 0; local out_lengths = 0
+	local ps = {0, 0, 0, 0}
+    for i, gold in pairs(golds) do
+        local out = outs[i]
+        gold_lengths = gold_lengths + #gold
+        out_lengths = out_lengths + #out
+        -- unigram
+        ps[1] = ps[1] + precision(gold, out)
+        for n = 2, 4 do
+            local gold_ngram = ngrams(gold, n)
+            local out_ngram = ngrams(out, n)
+            local ps_sample = precision(gold_ngram, out_ngram)
 
-        table.insert(ps, ps_sample)
+            ps[n] = ps[n] + ps_sample
+        end
+--        print(ps)
     end
-	return bp * (ps[1] * ps[2] * ps[3] * ps[4])^(1/4), ps
+    local bp = math.min(1, math.exp(1 - (gold_lengths/ out_lengths)))
+
+    local res = bp
+    for i= 1,4 do
+        res = res * (ps[i] / #golds)
+--        print(ps[i] / #golds)
+--        res = res + math.log(ps[i]) - math.log(#golds)
+    end
+    return res^(1/4)
+--    print(math.exp(res)^(1/4))
 end
 
 function test_bleu()
@@ -64,23 +78,17 @@ function test_bleu()
     local f_gprimes = assert(io.open('../data/100000/train.de.prime', "r"))
     local i = 0
     local n = 99415
-    local res = 0
-    local ps_tot = {0, 0, 0, 0}
+    local golds = {} ; local outs = {}
     while i < n do
-        local nl = split(f:read())
-        local prime = split(f_gprimes:read())
-        x, ps = bleu(prime, nl)
-        for i= 1,4 do
-            ps_tot[i] = ps_tot[i] + ps[i]
-        end
-        res = res + x
+        local out = split(f:read())
+        local gold = split(f_gprimes:read())
+        table.insert(golds, gold)
+        table.insert(outs, out)
         i = i + 1
     end
-    for i= 1,4 do
-        print(ps_tot[i] / n)
-    end
-    print((res / n))
+    bleu.bleu(golds, outs)
 
 end
 
+--test_bleu()
 return bleu

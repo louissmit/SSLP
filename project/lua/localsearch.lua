@@ -60,33 +60,14 @@ local function traverseBackpointers(sent, delta, bp, i, k)
 
 end
 
---input = {"b", "a", "d", "c"}
---sent_p = {"a", "b", "c", "d"}
-b = B:new()
---b:initAlphabetically(input, sent_p)
---
---delta, bp = localSearch(B, input)
---
---print(table.concat(traverseBackpointers(input, delta, bp, 1, #input+1)))
 
-function test_local_search(b)
-    local f = assert(io.open('../../project2_data/training/p2_training.nl', "r"))
-
-    local t = f:read()
-    local x = 1
-    while t ~= nil do
-        local line = split(t)
-        local sortedline = {unpack(line)} -- copy table
-        table.sort(sortedline)
-        b:initHeuristically(line, sortedline)
+function run_on_corpus(corpus, b)
+    result = {}
+    for _, line in pairs(corpus) do
         local delta, bp = localSearch(b, line)
---        print(sortedline)
-        local result = traverseBackpointers(line, delta, bp, 1, #line+1)
-        print(result)
-        x = x + 1
-        t = f:read()
+        local perm_sent = traverseBackpointers(line, delta, bp, 1, #line+1)
+        table.insert(result, perm_sent)
     end
-    f:close()
+    return result
 end
 
-test_local_search(b)

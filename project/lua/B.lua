@@ -1,14 +1,21 @@
 
+features = require('utils').features
+
 local B = {}
 
-function B:new()
+function B:new(mlp, word_vecs)
+    self.mlp = mlp
+    self.word_vecs = word_vecs
   self.matrix = {}
   self.__index = self 
   return self
 end
 
 function B:get(sent, left_word, right_word)
-  return self.matrix[sent[left_word]][sent[right_word]]
+    local vector = features(self.word_vecs, sent, left_word, right_word)
+    res = math.max(0, self.mlp:forward(vector)[1])
+    return res
+--  return self.matrix[sent[left_word]][sent[right_word]]
 end
 
 
