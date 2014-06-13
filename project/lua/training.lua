@@ -147,17 +147,17 @@ function main()
 
 
     local b = B:new(mlp, word_vecs)
-    permuted_test_set = run_on_corpus(test_set, b)
+    local permuted_test_set = run_on_corpus(test_set, b)
 
     print('BLEU:', bleu(test_set_prime, test_set))
     print('BLEU permuted:', bleu(test_set_prime, permuted_test_set))
 
 --    local gut, total = test_sample(word_vecs, train_set, mlp, sample_size)
 --    print(gut/total)
---    return gut, total, mlp
+    return mlp, permuted_test_set
 end
 
-gut, total, mlp = main()
+mlp, permuted_test_set = main()
 --word_vecs = WordVecs:new(100000)
 --word_vecs:load_from_word2vec('../data/word_vecs_europarl')
 --word_vecs:save()
