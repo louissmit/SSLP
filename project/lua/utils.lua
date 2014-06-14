@@ -37,7 +37,7 @@ function utils.features(word_vecs, sent, left, right, flip, vector_size)
 			return torch.Tensor(vector_size):zero()
         end
     end
-    local sum = torch.Tensor(vector_size)
+    local sum = torch.Tensor(vector_size):zero()
     for i = left+1, right-1 do
         sum:add(get(i))
     end
@@ -51,9 +51,6 @@ function utils.features(word_vecs, sent, left, right, flip, vector_size)
     res = torch.cat(res, sum, 1)
     for _, i in pairs({right-1, right, right+1}) do
         res = torch.cat(res, get(i), 1)
-    end
-    if res == nil then
-        print(table.concat({unpack(sent, left, right)}, " "))
     end
 
     return res
