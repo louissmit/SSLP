@@ -34,7 +34,7 @@ function utils.features(word_vecs, sent, left, right, flip, vector_size)
    		if i > 0 and i < #sent then
 			return word_vecs:get(sent[i])
 		else
-			return torch.Tensor(vector_size)
+			return torch.Tensor(vector_size):zero()
         end
     end
     local sum = torch.Tensor(vector_size)

@@ -136,11 +136,11 @@ function main()
 --    local f = assert(io.open('../../project2_data/training/p2_training.nl', "r"))
     local train_primes = assert(io.open('../data/100000/train.de.prime', "r"))
 
-    local train_size = 15000
-    local test_size = 10
+    local train_size = 1000
+    local test_size = 100
     local sample_size = 10
     local learning_rate = 0.01
-    local epochs = 1
+    local epochs = 10
     local hidden_units = {2, 1  }
     local input_size = 2100
 
