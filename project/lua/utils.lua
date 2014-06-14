@@ -52,6 +52,10 @@ function utils.features(word_vecs, sent, left, right, flip, vector_size)
     for _, i in pairs({right-1, right, right+1}) do
         res = torch.cat(res, get(i), 1)
     end
+    if res == nil then
+        print(table.concat({unpack(sent, left, right)}, " "))
+    end
+
     return res
 
 end

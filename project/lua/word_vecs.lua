@@ -19,6 +19,7 @@ end
 
 function WordVecs:get(word)
     local index = self.mapping[word]
+    if index == nil then print(word) end
     return self.word_vecs[index]
 end
 
