@@ -98,18 +98,57 @@ function test_sample(word_vecs, g_primes, mlp, sample_size)
    return gut, total
 end
 
+function test_network(word_vecs, train_size, test_size, sample_size, hidden_units, learning_rate, mlp)
+    local test = assert(io.open('../data/100000/test.de', "r"))
+    local test_primes = assert(io.open('../data/100000/test.de.prime', "r"))
+    if mlp == nil then
+        local mlp = torch.load('MLP:n='..tostring(train_size)..'_sample_size='..tostring(sample_size)..'_epochs=10'..'_hidden_units='
+                ..tostring(hidden_units[1])..','..tostring(hidden_units[2])..'_learning_rate'..tostring(learning_rate))
+    end
+    -- create test set
+    local test_set = {}
+    local test_set_prime = {}
+    local n = 0
+    while n < test_size do
+        local t = test:read()
+        local t_prime = test_primes:read()
+        local sent = split(t)
+        local sent_prime = split(t_prime)
+        if #sent < 10 then
+            table.insert(test_set, sent)
+            table.insert(test_set_prime, sent_prime)
+            n = n + 1
+        end
+    end
+
+
+    local b = B:new(mlp, word_vecs)
+    local permuted_test_set = run_on_corpus(test_set, b)
+
+    print('BLEU:', bleu(test_set_prime, test_set))
+    print('BLEU permuted:', bleu(test_set_prime, permuted_test_set))
+    return mlp, permuted_test_set
+end
+
 function main()
     local word_vecs = WordVecs:new()
     word_vecs:load(100000)
 --    local f = assert(io.open('../../project2_data/training/p2_training.nl', "r"))
     local train_primes = assert(io.open('../data/100000/train.de.prime', "r"))
-    local test = assert(io.open('../data/100000/test.de', "r"))
-    local test_primes = assert(io.open('../data/100000/test.de.prime', "r"))
+
+    local train_size = 15000
+    local test_size = 10
+    local sample_size = 10
+    local learning_rate = 0.01
+    local epochs = 1
+    local hidden_units = {2, 1  }
+    local input_size = 2100
+
+
 
     local train_set = {}
     local n = 0
-    local train_size = 25000
-    local test_size = 100
+
 
 
     -- create train set
@@ -120,38 +159,14 @@ function main()
         n = n + 1
     end
 --    print(train_set)
-    local sample_size = 10
-    local learning_rate = 0.01
-    local epochs = 10
-    local hidden_units = {512, 64}
-    local input_size = 2100
 
     -- train MLP
     local mlp = train_nn(train_set, word_vecs, input_size, hidden_units, epochs, learning_rate, sample_size)
     torch.save('MLP:n='..tostring(train_size)..'_sample_size='..tostring(sample_size)..'_epochs=10'..'_hidden_units='
             ..tostring(hidden_units[1])..','..tostring(hidden_units[2])..'_learning_rate'..tostring(learning_rate), mlp)
 
-    -- create test set
-    local test_set = {}
-    local test_set_prime = {}
-    n = 0
-    while n < test_size do
-        local t = test:read()
-        local t_prime = test_primes:read()
-        local sent = split(t)
-        local sent_prime = split(t_prime)
-        table.insert(test_set, sent)
-        table.insert(test_set_prime, sent_prime)
-        n = n + 1
-    end
 
-
-    local b = B:new(mlp, word_vecs)
-    local permuted_test_set = run_on_corpus(test_set, b)
-
-    print('BLEU:', bleu(test_set_prime, test_set))
-    print('BLEU permuted:', bleu(test_set_prime, permuted_test_set))
-
+    local mlp, permuted_test_set = test_network(word_vecs, train_size, test_size, sample_size, hidden_units, learning_rate, mlp)
 --    local gut, total = test_sample(word_vecs, train_set, mlp, sample_size)
 --    print(gut/total)
     return mlp, permuted_test_set
