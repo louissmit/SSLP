@@ -74,3 +74,15 @@ function run_on_corpus(corpus, b)
     return result
 end
 
+function run_on_corpus_with_gold(test_set, test_set_prime, b)
+    result = {}
+    for p, line in pairs(test_set) do
+        b:initHeuristically(test_set_prime[p])
+        local delta, bp = localSearch(b, line)
+        -- local timer = torch.Timer()
+        local perm_sent = traverseBackpointers(line, delta, bp, 1, #line + 1)
+        -- print('traversebackpointer time:', timer:time().real)
+        table.insert(result, perm_sent)
+    end
+    return result
+end
