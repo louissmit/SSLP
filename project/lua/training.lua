@@ -135,7 +135,7 @@ function test_network(word_vecs, train_size, test_size, sample_size, hidden_unit
     local improved_rounds = 0
     while improved_rounds < 10 do
         old_bleu_score = bleu_score
-        local permuted_test_set = run_on_corpus(test_set, test_set_prime, b)
+        local permuted_test_set = run_on_corpus_with_gold(test_set, test_set_prime, b)
         bleu_score = bleu(test_set_prime, permuted_test_set)
         test_set = permuted_test_set
         print('BLEU permuted:', bleu_score)

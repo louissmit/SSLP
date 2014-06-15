@@ -14,6 +14,7 @@ end
 function B:get(sent, left_word, right_word)
 --    local vector = features(self.word_vecs, sent, left_word, right_word)
 --    local pred = self.mlp:forward(vector)[1]
+--    if pred~=pred then print(sent, left_word_right) end
 --    if pred > 0 then
 --        return 1
 --    else
