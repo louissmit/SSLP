@@ -11,13 +11,40 @@ function B:new(mlp, word_vecs)
   return self
 end
 
+b_total = 0
+b_right = 0
+b_ratio_left = 0
+b_ratio_right = 0
+
 function B:get(sent, left_word, right_word)
-    local vector = features(self.word_vecs, sent, left_word, right_word)
+    local vector
+    if left_word > right_word then
+        vector = features(self.word_vecs, sent, right_word, left_word, true)
+    else
+        vector = features(self.word_vecs, sent, left_word, right_word)
+    end
+
     local pred = self.mlp:forward(vector)[1]
     if pred~=pred then print(sent, left_word_right) end
-	return math.max(0, pred)
+    local res
+    if pred > 0 then
+        res = 1
+    else
+        res = 0
+    end
+    if res == self.matrix[sent[left_word]][sent[right_word]] then
+        b_right = b_right + 1
+    else
+        if left_word > right_word then left_word, right_word = right_word, left_word end
+        b_ratio_left = b_ratio_left + (left_word / #sent)
+        b_ratio_right = b_ratio_right + (right_word / #sent)
+    end
+    b_total = b_total + 1
 
-  --return self.matrix[sent[left_word]][sent[right_word]]
+    return res
+--	return math.max(0, pred)
+
+--  return self.matrix[sent[left_word]][sent[right_word]]
 end
 
 
