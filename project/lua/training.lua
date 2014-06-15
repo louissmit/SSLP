@@ -115,7 +115,7 @@ function test_network(word_vecs, train_size, test_size, sample_size, hidden_unit
         local t_prime = test_primes:read()
         local sent = split(t)
         local sent_prime = split(t_prime)
-         if #sent < 20 then
+         if #sent < 30 then
             table.insert(test_set, sent)
             table.insert(test_set_prime, sent_prime)
             n = n + 1
