@@ -43,27 +43,32 @@ function B:get(sent, left_word, right_word)
     --    return res
     --	return math.max(0, pred)
 
-    return self.matrix[left_word][right_word]
+    local l_key = sent[left_word]..tostring(left_word)
+    local r_key = sent[right_word]..tostring(right_word_word)
+    return self.matrix[l_key][r_key]
 end
 
 
 function B:initHeuristically(gold)
     for i, left_word in pairs(gold) do
-        if self.matrix[i] == nil then
-            self.matrix[i] = {}
+        local l_key = left_word..tostring(i)
+        if self.matrix[l_key] == nil then
+            self.matrix[l_key] = {}
         end
 
         for j = i, #gold do
-            if self.matrix[j] == nil then
-                self.matrix[j] = {}
+            local right_word = gold[j]
+            local r_key = right_word..tostring(j)
+            if self.matrix[r_key] == nil then
+                self.matrix[r_key] = {}
             end
 
-            if self.matrix[i][j] == nil then
-                self.matrix[i][j] = 1
+            if self.matrix[l_key][r_key] == nil then
+                self.matrix[l_key][r_key] = 1
             end
 
-            if self.matrix[j][i] == nil then
-                self.matrix[j][i] = 0
+            if self.matrix[r_key][l_key] == nil then
+                self.matrix[r_key][l_key] = 0
             end
         end
     end

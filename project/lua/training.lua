@@ -146,7 +146,6 @@ function test_network(word_vecs, train_size, test_size, sample_size, hidden_unit
 --        f:close()
         print('BLEU permuted:', bleu_score)
         if(old_bleu_score - bleu_score) >= 0 then improved_rounds = improved_rounds + 1 end
-        break
     end
 
     return mlp, permuted_test_set
