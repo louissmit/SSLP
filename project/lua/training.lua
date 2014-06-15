@@ -127,12 +127,15 @@ function test_network(word_vecs, train_size, test_size, sample_size, hidden_unit
     local b = B:new(mlp, word_vecs)
 
     local old_bleu_score = 0
-    local bleu_score = 10
-    while bleu_score - old_bleu_score > 0.01 do
+    local bleu_score = 0.1
+    local improved_rounds = 0
+    while improved_rounds < 2 do
         old_bleu_score = bleu_score
         local permuted_test_set = run_on_corpus(test_set, b)
-        local bleu_score = bleu(test_set_prime, permuted_test_set)
+        bleu_score = bleu(test_set_prime, permuted_test_set)
+        test_set = permuted_test_set
         print('BLEU permuted:', bleu_score)
+        if(bleu_score - old_bleu_score) > 0 then improved_rounds = improved_rounds + 1 end
     end
 
 
