@@ -101,8 +101,9 @@ end
 function test_network(word_vecs, train_size, test_size, sample_size, hidden_units, learning_rate, mlp)
     local test = assert(io.open('../data/100000/test.de', "r"))
     local test_primes = assert(io.open('../data/100000/test.de.prime', "r"))
+	local mlp
     if mlp == nil then
-        local mlp = torch.load('MLP:n='..tostring(train_size)..'_sample_size='..tostring(sample_size)..'_epochs=10'..'_hidden_units='
+        mlp = torch.load('MLP:n='..tostring(train_size)..'_sample_size='..tostring(sample_size)..'_epochs=10'..'_hidden_units='
                 ..tostring(hidden_units[1])..','..tostring(hidden_units[2])..'_learning_rate'..tostring(learning_rate))
     end
     -- create test set
@@ -114,11 +115,11 @@ function test_network(word_vecs, train_size, test_size, sample_size, hidden_unit
         local t_prime = test_primes:read()
         local sent = split(t)
         local sent_prime = split(t_prime)
-        if #sent < 10 then
+         if #sent < 10 then
             table.insert(test_set, sent)
             table.insert(test_set_prime, sent_prime)
             n = n + 1
-        end
+         end
     end
 
 
@@ -136,12 +137,12 @@ function main()
 --    local f = assert(io.open('../../project2_data/training/p2_training.nl', "r"))
     local train_primes = assert(io.open('../data/100000/train.de.prime', "r"))
 
-    local train_size = 1000
+    local train_size = 10000
     local test_size = 100
     local sample_size = 10
     local learning_rate = 0.01
     local epochs = 10
-    local hidden_units = {2, 1  }
+    local hidden_units = {1024, 128}
     local input_size = 2100
 
 
@@ -152,18 +153,18 @@ function main()
 
 
     -- create train set
-    while n < train_size do
-        local t = train_primes:read()
-        local sent = split(t)
-        table.insert(train_set, sent)
-        n = n + 1
-    end
+    -- while n < train_size do
+        -- local t = train_primes:read()
+        -- local sent = split(t)
+        -- table.insert(train_set, sent)
+        -- n = n + 1
+--    end
 --    print(train_set)
 
     -- train MLP
-    local mlp = train_nn(train_set, word_vecs, input_size, hidden_units, epochs, learning_rate, sample_size)
-    torch.save('MLP:n='..tostring(train_size)..'_sample_size='..tostring(sample_size)..'_epochs=10'..'_hidden_units='
-            ..tostring(hidden_units[1])..','..tostring(hidden_units[2])..'_learning_rate'..tostring(learning_rate), mlp)
+    --local mlp = train_nn(train_set, word_vecs, input_size, hidden_units, epochs, learning_rate, sample_size)
+    -- torch.save('MLP:n='..tostring(train_size)..'_sample_size='..tostring(sample_size)..'_epochs=10'..'_hidden_units='
+ --           ..tostring(hidden_units[1])..','..tostring(hidden_units[2])..'_learning_rate'..tostring(learning_rate), mlp)
 
 
     local mlp, permuted_test_set = test_network(word_vecs, train_size, test_size, sample_size, hidden_units, learning_rate, mlp)

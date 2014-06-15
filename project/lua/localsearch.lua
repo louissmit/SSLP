@@ -4,7 +4,7 @@ B = require("B")
 split = require('utils').split
 
 function localSearch(B, sent)
-    local timer = torch.Timer()
+    --local timer = torch.Timer()
     local n = table.getn(sent)
     local beta = torch.Tensor(n + 1, n + 1)
     local bp = torch.IntTensor(n + 1, n + 1)
@@ -33,7 +33,7 @@ function localSearch(B, sent)
             end
         end
     end
-    print('local search time:', timer:time().real)
+    --print('local search time:', timer:time().real)
     return delta, bp
 end
 
@@ -66,9 +66,9 @@ function run_on_corpus(corpus, b)
     result = {}
     for _, line in pairs(corpus) do
         local delta, bp = localSearch(b, line)
-        local timer = torch.Timer()
+        -- local timer = torch.Timer()
         local perm_sent = traverseBackpointers(line, delta, bp, 1, #line + 1)
-        print('traversebackpointer time:', timer:time().real)
+        -- print('traversebackpointer time:', timer:time().real)
         table.insert(result, perm_sent)
     end
     return result
