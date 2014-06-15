@@ -115,7 +115,7 @@ function test_network(word_vecs, train_size, test_size, sample_size, hidden_unit
         local t_prime = test_primes:read()
         local sent = split(t)
         local sent_prime = split(t_prime)
-         if #sent < 10 then
+         if #sent < 100 then
             table.insert(test_set, sent)
             table.insert(test_set_prime, sent_prime)
             n = n + 1
@@ -135,11 +135,18 @@ function test_network(word_vecs, train_size, test_size, sample_size, hidden_unit
     local improved_rounds = 0
     while improved_rounds < 10 do
         old_bleu_score = bleu_score
-        local permuted_test_set = run_on_corpus_with_gold(test_set, test_set_prime, b)
+        -- local permuted_test_set = run_on_corpus_with_gold(test_set, test_set_prime, b)
+        local permuted_test_set = run_on_corpus(test_set, b)
         bleu_score = bleu(test_set_prime, permuted_test_set)
         test_set = permuted_test_set
+	local f = assert(io.open('permuted_set', 'a'))
+	for _, sent in pairs(test_set) do
+		f:write(table.concat(sent, " ").."\n")
+	end
+	f:close()
         print('BLEU permuted:', bleu_score)
-        if(old_bleu_score - bleu_score) > 0 then improved_rounds = improved_rounds + 1 end
+        if(old_bleu_score - bleu_score) >= 0 then improved_rounds = improved_rounds + 1 end
+	break	
     end
 
 
@@ -153,7 +160,7 @@ function main(retrain)
     local train_primes = assert(io.open('../data/100000/train.de.prime', "r"))
 
     local train_size = 90000
-    local test_size = 100
+    local test_size = 10
     local sample_size = 10
     local learning_rate = 0.01
     local epochs = 10
