@@ -98,7 +98,7 @@ function test_sample(word_vecs, g_primes, mlp, sample_size)
    return gut, total
 end
 
-function test_network(word_vecs, train_size, test_size, sample_size, hidden_units, learning_rate, mlp)
+function test_network(word_vecs, train_size, test_size, sample_size, hidden_units, learning_rate, prediction_test, mlp)
     local test = assert(io.open('../data/100000/test.de', "r"))
     local test_primes = assert(io.open('../data/100000/test.de.prime', "r"))
 	local mlp
@@ -121,7 +121,10 @@ function test_network(word_vecs, train_size, test_size, sample_size, hidden_unit
             n = n + 1
          end
     end
-
+    if prediction_test then
+        local gut, total = test_sample(word_vecs, test_set_prime, mlp, sample_size)
+        print('prediction test: ', gut/total)
+    end
 
     print('BLEU:', bleu(test_set_prime, test_set))
     local b = B:new(mlp, word_vecs)
@@ -148,12 +151,12 @@ function main(retrain)
 --    local f = assert(io.open('../../project2_data/training/p2_training.nl', "r"))
     local train_primes = assert(io.open('../data/100000/train.de.prime', "r"))
 
-    local train_size = 10000
+    local train_size = 90000
     local test_size = 100
     local sample_size = 10
     local learning_rate = 0.01
     local epochs = 10
-    local hidden_units = {1024, 128}
+    local hidden_units = {512, 128}
     local input_size = 2100
 
     if retrain then
@@ -174,9 +177,8 @@ function main(retrain)
 
     end
 
-    local mlp, permuted_test_set = test_network(word_vecs, train_size, test_size, sample_size, hidden_units, learning_rate, mlp)
---    local gut, total = test_sample(word_vecs, train_set, mlp, sample_size)
---    print(gut/total)
+    local mlp, permuted_test_set = test_network(word_vecs, train_size, test_size, sample_size, hidden_units, learning_rate, true, mlp)
+
     return mlp, permuted_test_set
 end
 
