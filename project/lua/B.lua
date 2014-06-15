@@ -13,8 +13,12 @@ end
 
 function B:get(sent, left_word, right_word)
     local vector = features(self.word_vecs, sent, left_word, right_word)
-    res = math.max(0, self.mlp:forward(vector)[1])
-    return res
+    local pred = self.mlp:forward(vector)[1]
+    if pred > 0 then
+        return 1
+    else
+        return 0
+    end
 --  return self.matrix[sent[left_word]][sent[right_word]]
 end
 
