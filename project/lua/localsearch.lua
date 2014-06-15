@@ -6,17 +6,17 @@ split = require('utils').split
 function localSearch(B, sent)
     --local timer = torch.Timer()
     local n = table.getn(sent)
-    local beta = torch.Tensor(n + 1, n + 1)
-    local bp = torch.IntTensor(n + 1, n + 1)
-    local delta = torch.Tensor(n + 1, n + 1, n + 1)
+    local beta = torch.Tensor(n + 1, n + 1):zero()
+    local bp = torch.IntTensor(n + 1, n + 1):zero()
+    local delta = torch.Tensor(n + 1, n + 1, n + 1):zero()
 
-    for i = 1, n do
-        beta[i][i + 1] = 0
-        for k = i + 1, n + 1 do
-            delta[i][i][k] = 0
-            delta[i][k][k] = 0
-        end
-    end
+    --for i = 1, n do
+        --beta[i][i + 1] = 0
+        --for k = i + 1, n + 1 do
+         --   delta[i][i][k] = 0
+          --  delta[i][k][k] = 0
+--        end
+ --   end
 
     for w = 2, n + 1 do
         for i = 1, n - w + 1 do
