@@ -19,6 +19,7 @@ def get_german_prime(german_sent, alignments):
 		else:
 			indices.append(0)
 	indices = np.argsort(np.array(indices), kind='mergesort')
+	german_sent = [word+str(i+1) for i, word in enumerate(german_sent)]
 	g_prime = [german_sent[i] for i in indices]
 	return g_prime
 

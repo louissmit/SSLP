@@ -101,6 +101,7 @@ end
 function test_network(word_vecs, train_size, test_size, sample_size, hidden_units, learning_rate, prediction_test, mlp)
     local test = assert(io.open('../data/100000/test.de', "r"))
     local test_primes = assert(io.open('../data/100000/test.de.prime', "r"))
+    local test_primes_indexed = assert(io.open('../data/100000/test.de.prime.indexed', "r"))
 	local mlp
     if mlp == nil then
         mlp = torch.load('MLP:n='..tostring(train_size)..'_sample_size='..tostring(sample_size)..'_epochs=10'..'_hidden_units='
@@ -109,15 +110,19 @@ function test_network(word_vecs, train_size, test_size, sample_size, hidden_unit
     -- create test set
     local test_set = {}
     local test_set_prime = {}
+    local test_set_prime_indexed = {}
     local n = 0
     while n < test_size do
         local t = test:read()
         local t_prime = test_primes:read()
+        local t_prime_indexed = test_primes_indexed:read()
         local sent = split(t)
         local sent_prime = split(t_prime)
+        local sent_prime_indexed = split(t_prime_indexed)
          if #sent < 30 then
             table.insert(test_set, sent)
             table.insert(test_set_prime, sent_prime)
+            table.insert(test_set_prime_indexed, sent_prime_indexed)
             n = n + 1
          end
     end
@@ -135,7 +140,7 @@ function test_network(word_vecs, train_size, test_size, sample_size, hidden_unit
     local improved_rounds = 0
     while improved_rounds < 10 do
         old_bleu_score = bleu_score
-        local permuted_test_set = run_on_corpus_with_gold(test_set, test_set_prime, b)
+        local permuted_test_set = run_on_corpus_with_gold(test_set, test_set_prime_indexed, b)
 --        local permuted_test_set = run_on_corpus(test_set, b)
         bleu_score = bleu(test_set_prime, permuted_test_set)
         test_set = permuted_test_set
@@ -146,6 +151,7 @@ function test_network(word_vecs, train_size, test_size, sample_size, hidden_unit
 --        f:close()
         print('BLEU permuted:', bleu_score)
         if(old_bleu_score - bleu_score) >= 0 then improved_rounds = improved_rounds + 1 end
+        break
     end
 
     return mlp, permuted_test_set
@@ -158,7 +164,7 @@ function main(retrain)
     local train_primes = assert(io.open('../data/100000/train.de.prime', "r"))
 
     local train_size = 90000
-    local test_size = 1000
+    local test_size = 100
     local sample_size = 10
     local learning_rate = 0.01
     local epochs = 10

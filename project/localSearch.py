@@ -2,7 +2,7 @@ from B import B
 import numpy as np
 from training import train, test_classifier, create_training_set
 from sent_utils import get_alignments, get_german_prime, get_word_vecs, save
-from bleu import bleu, precision
+# from bleu import bleu, precision
 
 import cPickle as pickle
 
@@ -97,18 +97,18 @@ if __name__ == '__main__':
 	train_set_size = 10000
 	test_set_size = 100
 	set = 'training'
-	english = [sent.split() for sent in list(open('../project2_data/' + set + '/p2_' + set + '.en', 'r'))][
-			  :train_set_size]
-	german = [sent.split() for sent in list(open('../project2_data/' + set + '/p2_' + set + '.nl', 'r'))]
+	# english = [sent.split() for sent in list(open('../project2_data/' + set + '/p2_' + set + '.en', 'r'))][
+	# 		  :train_set_size]
+	german = [sent.split() for sent in list(open('data/100000/test.de', 'r'))]
 	# word_vecs = get_word_vecs(german)
-	german_test = german[train_set_size:train_set_size + test_set_size]
-	german = german[:train_set_size]
-	alfile = [al.split() for al in list(open('../project2_data/' + set + '/p2_' + set + '_symal.nlen', 'r'))][
+	# german_test = german[train_set_size:train_set_size + test_set_size]
+	# german = german[:train_set_size]
+	alfile = [al.split() for al in list(open('data/100000/testalign/model/aligned.grow-diag-final-and', 'r'))][
 			 :train_set_size]
 
 	aligns = get_alignments(alfile)
 	g_prime = [get_german_prime(sent, aligns[i]) for i, sent in enumerate(german)]
-	name = 'gprimes_n='+str(train_set_size)
+	name = 'data/100000/test.de.prime.indexed'
 	save(g_prime, name)
 
 	# clf = train(word_vecs, g_prime, train_set_size)
