@@ -43,8 +43,8 @@ function B:get(sent, left_word, right_word)
     end
     b_total = b_total + 1
 
---        return res
-    	return math.max(0, pred)
+        return res
+--    	return math.max(0, pred)
 
 
 --    return self.matrix[l_key][r_key]

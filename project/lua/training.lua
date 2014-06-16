@@ -98,7 +98,7 @@ function test_sample(word_vecs, g_primes, mlp, sample_size)
    return gut, total
 end
 
-function test_network(word_vecs, train_size, test_size, sample_size, hidden_units, learning_rate, prediction_test, mlp)
+function test_network(word_vecs, train_size, test_size, sample_size, hidden_units, learning_rate, prediction_test, max_sent, mlp)
     local test = assert(io.open('../data/100000/test.de', "r"))
     local test_primes = assert(io.open('../data/100000/test.de.prime', "r"))
     local test_primes_indexed = assert(io.open('../data/100000/test.de.prime.indexed', "r"))
@@ -119,7 +119,7 @@ function test_network(word_vecs, train_size, test_size, sample_size, hidden_unit
         local sent = split(t)
         local sent_prime = split(t_prime)
         local sent_prime_indexed = split(t_prime_indexed)
-         if #sent < 30 then
+         if #sent < max_sent then
             table.insert(test_set, sent)
             table.insert(test_set_prime, sent_prime)
             table.insert(test_set_prime_indexed, sent_prime_indexed)
@@ -168,7 +168,7 @@ function main(retrain)
     local sample_size = 10
     local learning_rate = 0.01
     local epochs = 10
-    local hidden_units = {512, 128}
+    local hidden_units = {1024, 256}
     local input_size = 2100
 
     if retrain then
@@ -189,7 +189,9 @@ function main(retrain)
 
     end
 
-    local mlp, permuted_test_set = test_network(word_vecs, train_size, test_size, sample_size, hidden_units, learning_rate, true, mlp)
+    for max_sent = 2,20 do
+        local mlp, permuted_test_set = test_network(word_vecs, train_size, test_size, sample_size, hidden_units, learning_rate, true, max_sent, mlp)
+    end
 
     return mlp, permuted_test_set
 end

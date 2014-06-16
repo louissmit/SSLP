@@ -1,0 +1,7 @@
+// unbounded 100 sentences
+prediction test:        0.922
+BLEU:   0.53293017055947
+BLEU permuted:  0.52412310756166
+tsting time:    3548.2025668621
+0.64932521749823
+0.26234311350633        0.76372688645541
