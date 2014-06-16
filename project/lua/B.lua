@@ -10,10 +10,7 @@ function B:new(mlp, word_vecs)
     return self
 end
 
-b_total = 0
-b_right = 0
-b_ratio_left = 0
-b_ratio_right = 0
+
 
 function B:get(sent, left_word, right_word)
     local vector

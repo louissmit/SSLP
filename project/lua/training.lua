@@ -164,7 +164,7 @@ function main(retrain)
     local train_primes = assert(io.open('../data/100000/train.de.prime', "r"))
 
     local train_size = 90000
-    local test_size = 100
+    local test_size = 50
     local sample_size = 10
     local learning_rate = 0.01
     local epochs = 10
@@ -189,16 +189,21 @@ function main(retrain)
 
     end
 
-    for max_sent = 2,20 do
+    for max_sent = 5,20 do
+        b_total = 0
+        b_right = 0
+        b_ratio_left = 0
+        b_ratio_right = 0
         local mlp, permuted_test_set = test_network(word_vecs, train_size, test_size, sample_size, hidden_units, learning_rate, true, max_sent, mlp)
+        print(b_right/b_total)
+        print(b_ratio_left/(b_total - b_right), b_ratio_right/(b_total - b_right))
     end
 
     return mlp, permuted_test_set
 end
 
 mlp, permuted_test_set = main(false)
-print(b_right/b_total)
-print(b_ratio_left/(b_total - b_right), b_ratio_right/(b_total - b_right))
+
 --word_vecs = WordVecs:new(100000)
 --word_vecs:load_from_word2vec('../data/word_vecs_europarl')
 --word_vecs:save()
